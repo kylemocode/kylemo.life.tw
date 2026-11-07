@@ -1,47 +1,63 @@
 # kylemo.life.tw
 
-Kyle 的個人部落格，用 React + Vite 建置。
+Kyle's personal blog, built with React 19, Vite and TypeScript.
 
-## 在自己電腦上跑起來
+Mostly plain and minimal, with a few pixel-style touches: a playable Pac-Man maze on the home page, a scramble-reveal tagline drawn in pixels, Tetris accents, pixel cursors, and a magnetic button on the 404 page.
 
-需要先安裝 [Node.js](https://nodejs.org/)（選 LTS 版本）。
+## Features
+
+- Pages: Home, About, Posts (search by title or tag), single post, 404. A 3D "Cowork" room exists but is hidden from the nav.
+- Chinese / English switch and light / dark theme, both remembered in `localStorage`.
+- `/preview`: desktop and mobile side by side in two iframes; navigation, scroll, language and theme stay in sync.
+- Mobile hamburger menu, page transitions, scroll reveals. Animations respect `prefers-reduced-motion`.
+- PWA: installable, with an offline cache.
+
+## Run it locally
+
+Requires [Node.js](https://nodejs.org/) (LTS).
 
 ```bash
-npm install     # 第一次要先安裝套件
-npm run dev     # 開啟本機預覽，瀏覽器打開終端機顯示的網址（通常是 http://localhost:5173）
+npm install     # first time only
+npm run dev     # then open the URL shown in the terminal (usually http://localhost:5173)
+npm run build   # type-check and build to dist/
 ```
 
-## 常改的地方
+## Where to change things
 
-| 想改什麼 | 檔案 |
+| What | File |
 | --- | --- |
-| 網站名稱、副標、打字機關鍵詞、社群連結 | `src/data/site.ts` |
-| 新增或修改文章 | `src/data/posts.ts` |
-| 顏色、字體、間距 | `src/styles/global.css`（最上面的 `:root`） |
-| 頁面內容 | `src/pages/` |
+| Site name, nav, social links, playlist | `src/data/site.ts` |
+| Add or edit posts | `src/data/posts.ts` |
+| UI text (Chinese and English), tagline | `src/data/i18n.ts` |
+| Colors, fonts, spacing, animations | `src/styles/global.css` (theme tokens are at the top, in `:root`) |
+| Page content | `src/pages/` |
 
-## 資料夾結構
+## Project structure
 
 ```
 src/
-  main.tsx          網址路由（哪個網址顯示哪一頁）
-  components/       共用元件：頂部、頁尾、文章清單、打字機效果、圖示
-  pages/            各頁面：首頁、長文、單篇文章、施工中頁面、404
-  data/             網站設定與文章
-  styles/           全站樣式
-public/             直接放上網站的檔案（網站圖示等）
+  main.tsx          Routes (which URL shows which page)
+  i18n.tsx          Language provider and the t() helper
+  components/       Header, footer, post list, PacGame, ScrambleText, Tetris,
+                    Chomper, JellyLink, MagneticLink, icons, ...
+  pages/            Home, About, Blog, PostPage, Preview, Workspace, NotFound
+  data/             Site settings, posts, translations
+  styles/           Global styles
+public/             Static files: icons, cursors, manifest, service worker
 ```
 
-## 發布到 Vercel
+## Deploy on Vercel
 
-1. 到 [vercel.com](https://vercel.com) 用 GitHub 登入，Add New → Project，選這個 repo
-2. 設定保持預設（Framework 會自動認成 Vite；建置與輸出已寫在 `vercel.json`）
-3. 之後每次推到 `main` 會自動發布，其他分支與 PR 會有預覽網址
+1. Sign in at [vercel.com](https://vercel.com) with GitHub, then Add New → Project and pick this repo.
+2. Keep the defaults. The framework is detected as Vite, and the build and output settings are already in `vercel.json`.
+3. Every push to `main` deploys automatically; other branches and PRs get preview URLs.
 
-### 綁定自己的網域
+### Custom domain
 
-在 Vercel 專案的 Settings → Domains 加入 `kylemo.life.tw`，再依畫面指示到網域商的 DNS 加上紀錄（子網域用 CNAME，根網域用 A 記錄）。
+In the Vercel project, go to Settings → Domains and add `kylemo.life.tw`. Then add the DNS record Vercel shows you at your domain registrar (a CNAME for subdomains, an A record for the apex domain).
 
-### 改版後讓離線快取更新
+The manifest and service worker use absolute paths (`/`), so the site must be served from the root of the domain.
 
-離線快取在 `public/sw.js`，改版想強制換新時把檔案開頭的 `VERSION` 加一。
+### Refreshing the offline cache
+
+The offline cache lives in `public/sw.js`. To force clients to pick up a new release, bump `VERSION` at the top of that file.

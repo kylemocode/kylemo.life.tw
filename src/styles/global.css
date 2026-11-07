@@ -914,6 +914,9 @@ button.tag:hover {
   display: flex;
   justify-content: center;
 }
+.nf-action {
+  margin-top: 40px;
+}
 .btn-accent {
   display: inline-block;
   padding: 10px 22px;
@@ -922,6 +925,11 @@ button.tag:hover {
   color: #fff;
   font-weight: 600;
   text-decoration: none;
+}
+.btn-accent.btn-sm {
+  padding: 4px 12px;
+  border-radius: 5px;
+  font-size: 13px;
 }
 .btn-accent:hover {
   filter: brightness(1.08);
@@ -999,4 +1007,39 @@ button.tag:hover {
   height: auto;
   margin-top: 10px;
   image-rendering: pixelated;
+}
+
+/* 果凍彈跳：橫向壓扁 → 縱向拉長 → 幅度遞減地晃回原狀（約 0.7 秒） */
+.jelly {
+  transform-origin: center;
+}
+.jelly-play {
+  animation: jelly 0.7s both;
+}
+@keyframes jelly {
+  0% { transform: scale(1, 1); }
+  25% { transform: scale(1.18, 0.82); }
+  45% { transform: scale(0.85, 1.15); }
+  65% { transform: scale(1.08, 0.92); }
+  82% { transform: scale(0.97, 1.03); }
+  100% { transform: scale(1, 1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .jelly-play { animation: none; }
+}
+
+/* 磁吸按鈕：靠近時亮起一圈強調色光暈 */
+.magnetic {
+  will-change: transform;
+}
+.magnetic-text {
+  display: inline-block;
+  will-change: transform;
+}
+.magnetic {
+  transition: box-shadow 0.25s ease, filter 0.25s ease;
+}
+.magnetic.magnet-on {
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 28%, transparent);
+  filter: brightness(1.08);
 }

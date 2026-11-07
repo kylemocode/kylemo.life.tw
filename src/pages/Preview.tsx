@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { useLang } from '../i18n'
+import { JellyLink } from '../components/JellyLink'
 
 // 桌機與手機並排的預覽：兩個 iframe 載入同一個網站，換頁與捲動互相同步
 const DESKTOP = { w: 1280, h: 800 }
@@ -84,9 +84,9 @@ export function Preview() {
       <header>
         <h1>{t('preview.title')}</h1>
         <span className="muted">{t('preview.hint')}</span>
-        <Link to="/" className="muted">
-          ← {t('nf.home').replace('← ', '')}
-        </Link>
+        <JellyLink to="/" small>
+          {t('nav.home')}
+        </JellyLink>
       </header>
       <div className="stages">
         {frame(a, DESKTOP, 'desktop')}
