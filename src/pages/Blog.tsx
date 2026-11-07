@@ -1,4 +1,5 @@
 import { useSearchParams } from 'react-router-dom'
+import { Chomper } from '../components/Chomper'
 import { allTags, filterPosts, sortedPosts } from '../data/posts'
 import { useLang } from '../i18n'
 import { PostList } from '../components/PostList'
@@ -25,6 +26,7 @@ export function Blog() {
         {query || tag ? t('blog.found', { n: shown.length, total: sortedPosts.length }) : t('blog.count', { n: sortedPosts.length })}
       </p>
 
+      <Chomper />
       <input
         type="search"
         className="search"

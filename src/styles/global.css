@@ -151,6 +151,30 @@ a {
   transform: translateY(4px);
 }
 
+.site-header .left {
+  position: relative;
+}
+/* 首頁：名稱還沒出現時，左上角放頭像；捲過標題、名稱出現後頭像淡出，兩者交換 */
+.home-avatar {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  display: block;
+  width: 40px;
+  height: 40px;
+  transform: translateY(-50%);
+  transition: opacity 0.25s, visibility 0.25s;
+}
+.home-avatar img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.site-header:not([data-brand-hidden]) .home-avatar {
+  opacity: 0;
+  visibility: hidden;
+}
+
 .site-header .right {
   display: flex;
   align-items: center;
@@ -204,7 +228,7 @@ a {
 
 /* ---------- 首頁開頭 ---------- */
 .intro {
-  padding: 64px 0 48px;
+  padding: 48px 0 28px;
 }
 
 .intro h1 {
@@ -430,9 +454,81 @@ main {
   height: 22px;
 }
 
-@media (max-width: 36rem) {
-  .site-header nav {
+/* ---------- 手機：漢堡選單 ---------- */
+.menu-button {
+  display: none;
+}
+@media (max-width: 40rem) {
+  .menu-button {
+    display: grid;
+    margin-right: -8px;
+  }
+  /* 選單一直存在，用 clip-path + 透明度 + 位移做展開／收合，開關都有動畫 */
+  .site-header .right {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: -1;
+    flex-wrap: wrap;
+    align-items: center;
     gap: 16px;
+    padding: 20px 16px 24px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(-10px);
+    clip-path: inset(0 0 100% 0);
+    pointer-events: none;
+    transition:
+      clip-path 0.32s var(--ease-out),
+      opacity 0.25s ease,
+      transform 0.32s var(--ease-out),
+      visibility 0s linear 0.32s;
+  }
+  .site-header[data-menu-open] .right {
+    visibility: visible;
+    opacity: 1;
+    transform: none;
+    clip-path: inset(0 0 0 0);
+    pointer-events: auto;
+    transition:
+      clip-path 0.38s var(--ease-out),
+      opacity 0.2s ease,
+      transform 0.38s var(--ease-out),
+      visibility 0s;
+  }
+  /* 漢堡 ↔ X：三條線轉成叉叉 */
+  .menu-button .bar {
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: transform 0.3s var(--ease-out), opacity 0.2s ease;
+  }
+  .site-header[data-menu-open] .bar-top {
+    transform: translateY(5px) rotate(45deg);
+  }
+  .site-header[data-menu-open] .bar-mid {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  .site-header[data-menu-open] .bar-bot {
+    transform: translateY(-5px) rotate(-45deg);
+  }
+  .site-header nav {
+    flex: 0 0 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    font-size: 18px;
+  }
+  .site-header .right .divider {
+    display: none;
+  }
+  /* 語言與主題按鈕排成一列，放在連結下面 */
+  .site-header .right .icon-button {
+    display: inline-grid;
+    margin: 0;
   }
 }
 
@@ -713,6 +809,7 @@ button.tag:hover {
 /* ---------- 吃豆人（唯一的像素點綴） ---------- */
 .chomper {
   --pac: 22px;
+  --loop: 6s;
   position: relative;
   height: var(--pac);
   margin: 0 0 40px;
@@ -721,11 +818,10 @@ button.tag:hover {
 .chomper-dots {
   position: absolute;
   inset: 0;
-  /* 4px 的方形小點，每 22px 一顆 */
   background: linear-gradient(90deg, var(--muted) 4px, transparent 4px) 9px center / var(--pac) 4px repeat-x;
   opacity: 0.7;
 }
-/* 用和背景同色的遮罩「吃掉」點點，寬度和吃豆人的位置用同一組動畫，保證同步 */
+/* 用和背景同色的遮罩「吃掉」點點：寬度和吃豆人用同一組時間軸，保證同步 */
 .chomper-mask {
   position: absolute;
   top: 0;
@@ -733,16 +829,16 @@ button.tag:hover {
   left: 0;
   width: 0;
   background: var(--bg);
-  animation: chomp-eat 7s linear infinite;
+  animation: chomp-eat var(--loop) linear infinite;
 }
 .chomper-pac {
   position: absolute;
   top: 0;
-  left: 0;
+  left: calc(var(--pac) * -1);
   z-index: 1;
   width: var(--pac);
   height: var(--pac);
-  animation: chomp-run 7s linear infinite;
+  animation: chomp-run var(--loop) linear infinite;
 }
 .chomper-pac svg {
   position: absolute;
@@ -750,17 +846,16 @@ button.tag:hover {
   width: 100%;
   height: 100%;
 }
-/* 嘴巴一開一合 */
 .pac-open { animation: chomp-open 0.36s steps(1) infinite; }
 .pac-closed { animation: chomp-closed 0.36s steps(1) infinite; }
 
 @keyframes chomp-run {
-  0% { left: 0; }
-  85%, 100% { left: calc(100% - var(--pac)); }
+  from { left: calc(var(--pac) * -1); }
+  to { left: 100%; }
 }
 @keyframes chomp-eat {
-  0% { width: 0; }
-  85%, 100% { width: calc(100% - var(--pac) / 2); }
+  from { width: 0; }
+  to { width: calc(100% + var(--pac) / 2); }
 }
 @keyframes chomp-open {
   0%, 100% { opacity: 1; }
@@ -774,4 +869,134 @@ button.tag:hover {
 @media (prefers-reduced-motion: reduce) {
   .chomper-pac,
   .chomper-mask { animation: none !important; }
+}
+
+/* ---------- 像素滑鼠游標（只在有滑鼠的裝置） ---------- */
+@media (hover: hover) and (pointer: fine) {
+  html {
+    cursor: url('/cursor-arrow.png') 0 0, default;
+  }
+  a,
+  button,
+  summary,
+  [role='button'],
+  select {
+    cursor: url('/cursor-hand.png') 5 0, pointer;
+  }
+  input,
+  textarea {
+    cursor: text;
+  }
+}
+
+/* ---------- 俄羅斯方塊點綴 ---------- */
+.footer-tetris {
+  display: flex;
+  justify-content: center;
+  padding-top: 36px;
+  line-height: 0;
+  opacity: 0.8;
+}
+.site-footer .inner {
+  padding-top: 36px;
+  padding-bottom: 36px;
+}
+.nf-tetris {
+  margin: 24px 0;
+  line-height: 0;
+}
+
+/* 404：全部置中，回首頁是橘色按鈕 */
+.page.nf {
+  text-align: center;
+}
+.nf-tetris {
+  display: flex;
+  justify-content: center;
+}
+.btn-accent {
+  display: inline-block;
+  padding: 10px 22px;
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+}
+.btn-accent:hover {
+  filter: brightness(1.08);
+  color: #fff;
+}
+
+/* ---------- 首頁吃豆人小遊戲 ---------- */
+.pacgame {
+  width: 100%;
+  margin: 0;
+  padding: 14px 14px 10px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+.pacgame-hud {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 6px 8px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.pacgame-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 488 / 376;
+}
+.pacgame-hint {
+  margin: 10px 0 0;
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ---------- 雙螢幕預覽頁 ---------- */
+.preview {
+  min-height: 100vh;
+  padding: 20px 24px 40px;
+}
+.preview header {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.preview h1 {
+  margin: 0;
+  font-size: 20px;
+}
+.preview .stages {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 24px;
+}
+.preview .stage-frame {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+}
+.preview iframe {
+  display: block;
+  border: 0;
+  transform-origin: 0 0;
+}
+
+/* 亂碼揭示的點陣字 */
+.scramble {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin-top: 10px;
+  image-rendering: pixelated;
 }

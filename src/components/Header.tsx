@@ -27,6 +27,28 @@ export function Header() {
     ro.observe(el)
     return () => ro.disconnect()
   }, [])
+  const [menuOpen, setMenuOpen] = useState(false)
+
+  // 換頁或按 Esc 就收起手機選單
+  useEffect(() => setMenuOpen(false), [pathname])
+  useEffect(() => {
+    if (!menuOpen) return
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setMenuOpen(false)
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [menuOpen])
+
+  // 別的視窗（例如雙螢幕預覽）切換主題時跟著變
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === 'theme' && (e.newValue === 'light' || e.newValue === 'dark')) {
+        document.documentElement.dataset.theme = e.newValue
+      }
+    }
+    window.addEventListener('storage', onStorage)
+    return () => window.removeEventListener('storage', onStorage)
+  }, [])
+
   const isHome = pathname === '/'
   // 首頁一開始不顯示左上角名稱，捲過大標題後才出現（和參考網站一樣）
   const [brandHidden, setBrandHidden] = useState(isHome)
@@ -57,14 +79,38 @@ export function Header() {
   }
 
   return (
-    <header ref={headerRef} className="site-header" data-brand-hidden={brandHidden ? '' : undefined}>
+    <header
+      ref={headerRef}
+      className="site-header"
+      data-brand-hidden={brandHidden ? '' : undefined}
+      data-menu-open={menuOpen ? '' : undefined}
+    >
       <div className="container inner">
         <div className="left">
+          {isHome && (
+            <Link className="home-avatar" to="/" aria-label={site.name} tabIndex={brandHidden ? 0 : -1}>
+              <img src={`${import.meta.env.BASE_URL}avatar-home.png`} alt="" width="40" height="40" />
+            </Link>
+          )}
           <Link className="brand" to="/" tabIndex={brandHidden ? -1 : 0}>
             {site.name}
           </Link>
         </div>
-        <div className="right">
+        <button
+          type="button"
+          className="icon-button menu-button"
+          aria-label={t('nav.menu')}
+          aria-expanded={menuOpen}
+          aria-controls="site-menu"
+          onClick={() => setMenuOpen((v) => !v)}
+        >
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+            <path className="bar bar-top" d="M4 7h16" />
+            <path className="bar bar-mid" d="M4 12h16" />
+            <path className="bar bar-bot" d="M4 17h16" />
+          </svg>
+        </button>
+        <div className="right" id="site-menu">
           <nav aria-label={t('nav.main')}>
             {site.nav.map((item) => (
               <NavLink key={item.to} to={item.to}>

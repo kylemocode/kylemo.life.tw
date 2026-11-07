@@ -26,6 +26,15 @@ export function LangProvider({ children }: { children: ReactNode }) {
     document.documentElement.lang = lang === 'zh' ? 'zh-Hant-TW' : 'en'
   }, [lang])
 
+  // 同一個網站在別的視窗或 iframe 切換語言時（例如雙螢幕預覽），這邊跟著變
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === 'lang' && (e.newValue === 'zh' || e.newValue === 'en')) setLangState(e.newValue)
+    }
+    window.addEventListener('storage', onStorage)
+    return () => window.removeEventListener('storage', onStorage)
+  }, [])
+
   const setLang = useCallback((l: Lang) => {
     setLangState(l)
     try {

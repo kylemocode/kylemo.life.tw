@@ -1,11 +1,15 @@
 import { site } from '../data/site'
 import { Icon } from './Icons'
+import { Tetris } from './Tetris'
 
 export function Footer() {
   const year = new Date().getFullYear()
 
   return (
     <footer className="site-footer">
+      <div className="container footer-tetris">
+        <Tetris rows={3} mode="loop" />
+      </div>
       <div className="container inner">
         <p className="muted">
           © {year} {site.handle}
