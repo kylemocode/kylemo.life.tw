@@ -6,9 +6,11 @@ const G = 22 // 字高（格）
 const CELL = 2 // 畫布內每格的像素
 const DISPLAY = 0.5 // 顯示縮放
 const REVEAL_DELAY = 0.5
-const REVEAL_STEP = 0.09
+const REVEAL_STEP = 0.09 // 每個字的間隔上限；字多時會縮短，讓整句解碼不超過 REVEAL_MAX
+const REVEAL_MAX = 1.6
 const HOLD = 3.5
 const SCATTER_STEP = 0.035
+const SCATTER_MAX = 0.6
 // 亂碼用程式碼的符號與十六進位字元；寬格放兩個字（像 0x、{}、=>）
 const CODE = '{}[]()<>/\\;:=+-*&|!?#$%@~^_0123456789ABCDEF'
 const isWide = (ch: string) => /[^\u0000-ÿ]/.test(ch)
@@ -40,13 +42,17 @@ function bits(ch: string, w: number, mono = false): boolean[][] {
   return out
 }
 
-export function ScrambleText({ text }: { text: string }) {
+export function ScrambleText({ text, highlight }: { text: string; highlight?: string }) {
   const ref = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
     const canvas = ref.current!
     const ctx = canvas.getContext('2d')!
     const chars = [...text]
+    // highlight 指定的那段字，解出來之後用強調色
+    const hs = highlight ? text.indexOf(highlight) : -1
+    const hFrom = hs < 0 ? -1 : [...text.slice(0, hs)].length
+    const hTo = hFrom < 0 ? -1 : hFrom + [...highlight!].length
     const widths = chars.map((ch) => (isWide(ch) ? G : Math.round(G * 0.55)))
     const total = widths.reduce((a, b) => a + b, 0)
     const dpr = window.devicePixelRatio || 1
@@ -58,8 +64,10 @@ export function ScrambleText({ text }: { text: string }) {
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
     const n = chars.length
-    const holdStart = REVEAL_DELAY + n * REVEAL_STEP + HOLD
-    const cycle = holdStart + n * SCATTER_STEP + 0.35
+    const revealStep = Math.min(REVEAL_STEP, REVEAL_MAX / n)
+    const scatterStep = Math.min(SCATTER_STEP, SCATTER_MAX / n)
+    const holdStart = REVEAL_DELAY + n * revealStep + HOLD
+    const cycle = holdStart + n * scatterStep + 0.35
     let noise: string[] = []
     let noiseAt = -1
     let visible = true
@@ -81,11 +89,11 @@ export function ScrambleText({ text }: { text: string }) {
       let ox = 0
       chars.forEach((ch, i) => {
         const w = widths[i]
-        const solved = reduce || (T >= REVEAL_DELAY + i * REVEAL_STEP && T < holdStart + i * SCATTER_STEP)
+        const solved = reduce || (T >= REVEAL_DELAY + i * revealStep && T < holdStart + i * scatterStep)
         // 剛解出來的那一格短暫用強調色，像剛解碼完
-        const fresh = !reduce && solved && T < REVEAL_DELAY + i * REVEAL_STEP + 0.18
+        const fresh = !reduce && solved && T < REVEAL_DELAY + i * revealStep + 0.18
         const glyph = ch === ' ' ? [] : bits(solved ? ch : noise[i], w, !solved)
-        ctx.fillStyle = solved && !fresh ? text : accent
+        ctx.fillStyle = solved && !fresh && !(i >= hFrom && i < hTo) ? text : accent
         glyph.forEach((row, j) =>
           row.forEach((on, k) => {
             if (on) ctx.fillRect((ox + k) * CELL, j * CELL, CELL, CELL)
@@ -110,7 +118,7 @@ export function ScrambleText({ text }: { text: string }) {
       cancelAnimationFrame(raf)
       io.disconnect()
     }
-  }, [text])
+  }, [text, highlight])
 
   return <canvas ref={ref} className="scramble" role="img" aria-label={text} />
 }

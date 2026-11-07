@@ -10,7 +10,7 @@ export function Home() {
     <>
       <section className="intro">
         <h1 id="intro-title">{site.name}</h1>
-        <ScrambleText text={t('tagline.text')} />
+        <ScrambleText text={t('tagline.text')} highlight={t('tagline.highlight')} />
       </section>
 
       <PacGame />
