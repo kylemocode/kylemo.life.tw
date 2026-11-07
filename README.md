@@ -32,16 +32,16 @@ src/
 public/             直接放上網站的檔案（網站圖示等）
 ```
 
-## 發布到 GitHub Pages
+## 發布到 Vercel
 
-1. 把根目錄的 `deploy.yml` 移到 `.github/workflows/deploy.yml`（這是自動發布的設定檔）
-2. 在 GitHub 建立 repo，把這個專案推上去（main 分支）
-3. 到 repo 的 Settings → Pages，Source 選 **GitHub Actions**
-4. 之後每次推到 main，網站會自動更新
+1. 到 [vercel.com](https://vercel.com) 用 GitHub 登入，Add New → Project，選這個 repo
+2. 設定保持預設（Framework 會自動認成 Vite；建置與輸出已寫在 `vercel.json`）
+3. 之後每次推到 `main` 會自動發布，其他分支與 PR 會有預覽網址
 
 ### 綁定自己的網域
 
-買好網域後：
-1. 在 `public/` 新增一個叫 `CNAME` 的檔案，內容只寫網域，例如 `kylemo.tw`
-2. 到網域商的 DNS 設定，依照 GitHub Pages 的說明加上紀錄
-3. 在 repo 的 Settings → Pages 填入網域，勾選 Enforce HTTPS
+在 Vercel 專案的 Settings → Domains 加入 `kylemo.life.tw`，再依畫面指示到網域商的 DNS 加上紀錄（子網域用 CNAME，根網域用 A 記錄）。
+
+### 改版後讓離線快取更新
+
+離線快取在 `public/sw.js`，改版想強制換新時把檔案開頭的 `VERSION` 加一。
