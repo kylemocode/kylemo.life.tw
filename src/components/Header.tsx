@@ -3,6 +3,7 @@ import { Link, NavLink, useLocation } from 'react-router-dom'
 import { site } from '../data/site'
 import { Icon } from './Icons'
 import { useLang } from '../i18n'
+import { MusicButton } from './MusicButton'
 
 type Theme = 'light' | 'dark'
 
@@ -71,6 +72,7 @@ export function Header() {
   function toggleTheme() {
     const next: Theme = currentTheme() === 'dark' ? 'light' : 'dark'
     document.documentElement.dataset.theme = next
+    document.querySelectorAll('meta[name="theme-color"]').forEach((m) => m.setAttribute('content', next === 'dark' ? '#161513' : '#fbfaf7'))
     try {
       localStorage.setItem('theme', next)
     } catch {
@@ -119,6 +121,7 @@ export function Header() {
             ))}
           </nav>
           <span className="divider" aria-hidden="true" />
+          <MusicButton />
           <button
             type="button"
             className="icon-button lang-button"
