@@ -2,21 +2,23 @@ import { useEffect, useRef, useState } from 'react'
 import { useLang } from '../i18n'
 
 // 首頁的吃豆人小遊戲：一開始自己玩（展示模式），按方向鍵 / WASD 或點擊畫面就換你操控。
+// 迷宮的牆排成我的名字（KYLE / MO 兩行），尺寸和原本的迷宮一樣。
+// # 牆（畫成空心輪廓）、X 排成名字的牆（畫成實心方塊）、. 點點、o 能量豆、P 吃豆人起點、G 鬼起點、空白是走不到的地方（沒有點點）
 const MAP = [
   '###################',
-  '#........#........#',
-  '#o##.###.#.###.##o#',
-  '#.................#',
-  '#.##.#.#####.#.##.#',
-  '#....#...#...#....#',
-  '####.### # ###.####',
-  '#.......   .......#',
-  '####.### # ###.####',
-  '#....#...#...#....#',
-  '#.##.#.#####.#.##.#',
-  '#.................#',
-  '#o##.###.#.###.##o#',
-  '#........#........#',
+  '#o...............o#',
+  '#.X.X.X.X.X...XXX.#',
+  '#.X.X.X.X.X...X...#',
+  '#.XX...X..X...XX..#',
+  '#.X.X..X..X...X...#',
+  '#.X.X..X..XXX.XXX.#',
+  '#.......GGG.......#',
+  '#..#.X...X.XXX.#..#',
+  '#.##.XX.XX.X X.##.#',
+  '#....X.X.X.X X....#',
+  '#.##.X...X.X X.##.#',
+  '#..#.X...X.XXX.#..#',
+  '#o.......P.......o#',
   '###################',
 ]
 const COLS = MAP[0].length
@@ -37,7 +39,7 @@ const GHOST_COLORS = ['#d9534f', '#e59ab5', '#4fb0c6']
 type Ent = { x: number; y: number; dx: number; dy: number }
 type Ghost = Ent & { wait: number; eaten: boolean }
 
-const wall = (x: number, y: number) => y < 0 || y >= ROWS || x < 0 || x >= COLS || MAP[y][x] === '#'
+const wall = (x: number, y: number) => y < 0 || y >= ROWS || x < 0 || x >= COLS || MAP[y][x] === '#' || MAP[y][x] === 'X'
 
 function advance(e: Ent, dist: number, choose: (e: Ent) => void) {
   let guard = 0
@@ -89,7 +91,14 @@ export function PacGame() {
     ctx.setTransform(dpr, 0, 0, dpr, -PAD * dpr, -PAD * dpr)
 
     let dots: boolean[][] = []
-    let pac: Ent = { x: 9, y: 11, dx: 0, dy: 0 }
+    const find = (ch: string) => {
+      const out: { x: number; y: number }[] = []
+      MAP.forEach((r, y) => [...r].forEach((c, x) => c === ch && out.push({ x, y })))
+      return out
+    }
+    const pacStart = find('P')[0]
+    const ghostStarts = find('G')
+    let pac: Ent = { x: pacStart.x, y: pacStart.y, dx: 0, dy: 0 }
     let want = { dx: 0, dy: 0 }
     let ghosts: Ghost[] = []
     let score = 0
@@ -110,9 +119,9 @@ export function PacGame() {
       dots = MAP.map((r) => [...r].map((c) => c === '.' || c === 'o'))
     }
     const resetPositions = () => {
-      pac = { x: 9, y: 11, dx: 0, dy: 0 }
+      pac = { x: pacStart.x, y: pacStart.y, dx: 0, dy: 0 }
       want = { dx: 0, dy: 0 }
-      ghosts = [0, 1, 2].map((i) => ({ x: 8 + i, y: 7, dx: 0, dy: 0, wait: i * 0.9, eaten: false }))
+      ghosts = ghostStarts.map((p, i) => ({ x: p.x, y: p.y, dx: 0, dy: 0, wait: i * 0.9, eaten: false }))
       scared = 0
       freeze = 0.8
     }
@@ -239,8 +248,9 @@ export function PacGame() {
         if (Math.hypot(g.x - pac.x, g.y - pac.y) < 0.6) {
           if (scared > 0) {
             score += 200
-            g.x = 9
-            g.y = 7
+            const home = ghostStarts[ghosts.indexOf(g) % ghostStarts.length]
+            g.x = home.x
+            g.y = home.y
             g.dx = 0
             g.dy = 0
             g.wait = 2
@@ -289,6 +299,44 @@ export function PacGame() {
       ctx.fillRect(x + 3 + g.dx * 1.5, y - 3 + g.dy * 1.5, 2, 3)
     }
 
+    // 內部的空心障礙：把「牆格的聯集」往內縮 4px 畫成連續的線，L 形才會是一個完整的形狀
+    const layer = document.createElement('canvas')
+    layer.width = canvas.width
+    layer.height = canvas.height
+    let layerColor = ''
+    const isInner = (x: number, y: number) => x > 0 && y > 0 && x < COLS - 1 && y < ROWS - 1 && MAP[y][x] === '#'
+    const drawLayer = (color: string) => {
+      const l = layer.getContext('2d')!
+      l.setTransform(1, 0, 0, 1, 0, 0)
+      l.clearRect(0, 0, layer.width, layer.height)
+      l.setTransform(dpr, 0, 0, dpr, -PAD * dpr, -PAD * dpr)
+      const region = new Path2D()
+      const edges = new Path2D()
+      for (let y = 1; y < ROWS - 1; y++)
+        for (let x = 1; x < COLS - 1; x++) {
+          if (!isInner(x, y)) continue
+          const px = x * CELL
+          const py = y * CELL
+          region.rect(px - 0.5, py - 0.5, CELL + 1, CELL + 1)
+          if (!wall(x, y - 1)) { edges.moveTo(px, py); edges.lineTo(px + CELL, py) }
+          if (!wall(x, y + 1)) { edges.moveTo(px, py + CELL); edges.lineTo(px + CELL, py + CELL) }
+          if (!wall(x - 1, y)) { edges.moveTo(px, py); edges.lineTo(px, py + CELL) }
+          if (!wall(x + 1, y)) { edges.moveTo(px + CELL, py); edges.lineTo(px + CELL, py + CELL) }
+        }
+      l.save()
+      l.clip(region)
+      l.strokeStyle = color
+      l.lineCap = 'square'
+      l.lineJoin = 'miter'
+      l.lineWidth = 2 * 5 // 先畫出內側 5px 的帶狀
+      l.stroke(edges)
+      l.globalCompositeOperation = 'destination-out'
+      l.lineWidth = 2 * 3 // 再挖掉內側 3px，只剩距離邊緣 3~5px、寬 2px 的線
+      l.stroke(edges)
+      l.restore()
+      layerColor = color
+    }
+
     const draw = () => {
       const c = css()
       ctx.clearRect(0, 0, COLS * CELL, ROWS * CELL)
@@ -300,9 +348,17 @@ export function PacGame() {
       ctx.beginPath()
       for (let y = 0; y < ROWS; y++)
         for (let x = 0; x < COLS; x++) {
-          if (MAP[y][x] !== '#') continue
+          const ch = MAP[y][x]
+          if (ch !== '#' && ch !== 'X') continue
+          if (isInner(x, y)) continue
           const px = x * CELL
           const py = y * CELL
+          // 排成名字的牆畫成實心方塊，才讀得出字；其餘的牆只畫與空地交界的邊線（輪廓）
+          if (ch === 'X') {
+            ctx.fillStyle = c.muted
+            ctx.fillRect(px + 3, py + 3, CELL - 6, CELL - 6)
+            continue
+          }
           const open = (xx: number, yy: number) => !wall(xx, yy)
           const i = 4
           if (open(x, y - 1)) { ctx.moveTo(px + i, py + i); ctx.lineTo(px + CELL - i, py + i) }
@@ -311,6 +367,11 @@ export function PacGame() {
           if (open(x + 1, y)) { ctx.moveTo(px + CELL - i, py + i); ctx.lineTo(px + CELL - i, py + CELL - i) }
         }
       ctx.stroke()
+      if (layerColor !== c.muted) drawLayer(c.muted)
+      ctx.save()
+      ctx.setTransform(1, 0, 0, 1, 0, 0)
+      ctx.drawImage(layer, 0, 0)
+      ctx.restore()
       ctx.globalAlpha = 1
       // 點點
       const pulse = Math.floor(performance.now() / 350) % 2
