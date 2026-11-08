@@ -32,6 +32,7 @@ npm run build   # type-check and build to dist/
 | UI text (Chinese and English), tagline | `src/data/i18n.ts` |
 | Colors, fonts, spacing, animations | `src/styles/global.css` (theme tokens are at the top, in `:root`) |
 | Page content | `src/pages/` |
+| Pac-Man power pellets (my interests: pixel icon + English label) | `ICONS` and `PELLET_LABELS` in `src/components/PacGame.tsx` |
 
 ## Writing posts
 
