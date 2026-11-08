@@ -76,8 +76,39 @@ class Engine {
   private nextTime = 0
   playing = false
 
+  // iOS：Web Audio 預設受靜音開關影響，而且要在點擊當下啟動。
+  // 把音訊分類切到 playback，並同時放一段無聲的 <audio>，手機才會出聲
+  private unlock() {
+    try {
+      const nav = navigator as unknown as { audioSession?: { type: string } }
+      if (nav.audioSession) nav.audioSession.type = 'playback'
+    } catch { /* 不支援就略過 */ }
+    try {
+      if (!this.keep) {
+        const rate = 8000
+        const n = rate // 1 秒
+        const buf = new ArrayBuffer(44 + n)
+        const v = new DataView(buf)
+        const w = (o: number, str: string) => [...str].forEach((c, i) => v.setUint8(o + i, c.charCodeAt(0)))
+        w(0, 'RIFF'); v.setUint32(4, 36 + n, true); w(8, 'WAVE'); w(12, 'fmt ')
+        v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true)
+        v.setUint32(24, rate, true); v.setUint32(28, rate, true); v.setUint16(32, 1, true); v.setUint16(34, 8, true)
+        w(36, 'data'); v.setUint32(40, n, true)
+        new Uint8Array(buf, 44).fill(128)
+        const a = new Audio(URL.createObjectURL(new Blob([buf], { type: 'audio/wav' })))
+        a.loop = true
+        a.setAttribute('playsinline', '')
+        this.keep = a
+      }
+      void this.keep.play().catch(() => {})
+    } catch { /* 略過 */ }
+  }
+
+  private keep: HTMLAudioElement | null = null
+
   start() {
     if (this.playing) return
+    this.unlock()
     if (!this.ctx) {
       const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
       this.ctx = new AC()
@@ -96,6 +127,11 @@ class Engine {
     }
     const ctx = this.ctx
     void ctx.resume()
+    // 部分 iOS 版本要先實際送一個極短的聲音，才會真正開始輸出
+    const kick = ctx.createBufferSource()
+    kick.buffer = ctx.createBuffer(1, 1, ctx.sampleRate)
+    kick.connect(ctx.destination)
+    kick.start(0)
     this.master.gain.cancelScheduledValues(ctx.currentTime)
     this.master.gain.setValueAtTime(0, ctx.currentTime)
     this.master.gain.linearRampToValueAtTime(0.2, ctx.currentTime + 0.3)
@@ -115,16 +151,25 @@ class Engine {
     this.master.gain.setValueAtTime(this.master.gain.value, ctx.currentTime)
     this.master.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.25)
     window.setTimeout(() => {
-      if (!this.playing) void ctx.suspend()
+      if (!this.playing) {
+        void ctx.suspend()
+        this.keep?.pause()
+      }
     }, 320)
   }
 
   // 分頁切到背景時暫停，回來再接著播
   pause() {
-    if (this.playing && this.ctx) void this.ctx.suspend()
+    if (this.playing && this.ctx) {
+      void this.ctx.suspend()
+      this.keep?.pause()
+    }
   }
   resume() {
-    if (this.playing && this.ctx) void this.ctx.resume()
+    if (this.playing && this.ctx) {
+      void this.ctx.resume()
+      void this.keep?.play().catch(() => {})
+    }
   }
 
   private tick() {

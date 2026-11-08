@@ -79,6 +79,8 @@ function advance(e: Ent, dist: number, choose: (e: Ent) => void) {
 export function PacGame() {
   const { t } = useLang()
   const ref = useRef<HTMLCanvasElement>(null)
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const joyRef = useRef<HTMLDivElement>(null)
   const [hud, setHud] = useState({ score: 0, lives: 3, demo: true, over: false })
 
   useEffect(() => {
@@ -452,6 +454,7 @@ export function PacGame() {
     }
     // 觸控 / 滑鼠：點在吃豆人的哪一側，就往那個方向
     const onPointer = (e: PointerEvent) => {
+      if (e.pointerType !== 'mouse') return
       const r = canvas.getBoundingClientRect()
       const sx = (((e.clientX - r.left) / r.width) * VW + PAD) / CELL
       const sy = (((e.clientY - r.top) / r.height) * VH + PAD) / CELL
@@ -459,20 +462,71 @@ export function PacGame() {
       const ddy = sy - (pac.y + 0.5)
       takeOver(Math.abs(ddx) > Math.abs(ddy) ? (ddx > 0 ? DIRS[0] : DIRS[1]) : ddy > 0 ? DIRS[2] : DIRS[3])
     }
+    // 觸控：按住畫面任一處，就在手指下出現搖桿，拖曳方向即控制吃豆人
+    const joy = joyRef.current!
+    const knob = joy.firstElementChild as HTMLElement
+    const R = 44
+    let joyId = -1
+    let ox = 0
+    let oy = 0
+    let joyDir: { dx: number; dy: number } | null = null
+    const joyDown = (e: PointerEvent) => {
+      if (e.pointerType === 'mouse' || joyId !== -1) return
+      joyId = e.pointerId
+      canvas.setPointerCapture(e.pointerId)
+      const r = wrapRef.current!.getBoundingClientRect()
+      ox = e.clientX
+      oy = e.clientY
+      joy.style.left = `${ox - r.left}px`
+      joy.style.top = `${oy - r.top}px`
+      knob.style.transform = 'translate(0px, 0px)'
+      joy.dataset.on = '1'
+      joyDir = null
+    }
+    const joyMove = (e: PointerEvent) => {
+      if (e.pointerId !== joyId) return
+      let dx = e.clientX - ox
+      let dy = e.clientY - oy
+      const len = Math.hypot(dx, dy)
+      if (len > R) {
+        dx = (dx / len) * R
+        dy = (dy / len) * R
+      }
+      knob.style.transform = `translate(${dx}px, ${dy}px)`
+      if (len < 12) return
+      const d = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? DIRS[0] : DIRS[1]) : dy > 0 ? DIRS[2] : DIRS[3]
+      if (d !== joyDir) {
+        joyDir = d
+        takeOver(d)
+      }
+    }
+    const joyUp = (e: PointerEvent) => {
+      if (e.pointerId !== joyId) return
+      joyId = -1
+      delete joy.dataset.on
+    }
     const io = new IntersectionObserver(([en]) => (visible = en.isIntersecting))
     io.observe(canvas)
     window.addEventListener('keydown', onKey)
     canvas.addEventListener('pointerdown', onPointer)
+    canvas.addEventListener('pointerdown', joyDown)
+    canvas.addEventListener('pointermove', joyMove)
+    canvas.addEventListener('pointerup', joyUp)
+    canvas.addEventListener('pointercancel', joyUp)
     return () => {
       cancelAnimationFrame(raf)
       io.disconnect()
       window.removeEventListener('keydown', onKey)
       canvas.removeEventListener('pointerdown', onPointer)
+      canvas.removeEventListener('pointerdown', joyDown)
+      canvas.removeEventListener('pointermove', joyMove)
+      canvas.removeEventListener('pointerup', joyUp)
+      canvas.removeEventListener('pointercancel', joyUp)
     }
   }, [])
 
   return (
-    <div className="pacgame">
+    <div className="pacgame" ref={wrapRef}>
       <div className="pacgame-hud">
         <span>
           {t('game.score')} {String(hud.score).padStart(5, '0')}
@@ -480,6 +534,9 @@ export function PacGame() {
         <span aria-hidden="true">{hud.demo ? 'DEMO' : '●'.repeat(hud.lives)}</span>
       </div>
       <canvas ref={ref} className="pacgame-canvas" aria-label={t('game.label')} />
+      <div className="joy" ref={joyRef} aria-hidden="true">
+        <div className="joy-knob" />
+      </div>
       <p className="pacgame-hint">{hud.over ? t('game.over') : t('game.hint')}</p>
     </div>
   )

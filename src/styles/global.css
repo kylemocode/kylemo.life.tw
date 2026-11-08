@@ -1043,6 +1043,7 @@ button.tag:hover {
 
 /* ---------- 首頁吃豆人小遊戲 ---------- */
 .pacgame {
+  position: relative;
   width: 100%;
   margin: 0;
   padding: 14px 14px 10px;
@@ -1063,6 +1064,39 @@ button.tag:hover {
   width: 100%;
   height: auto;
   aspect-ratio: 488 / 376;
+}
+.pacgame-canvas {
+  touch-action: none; /* 觸控拖曳是搖桿，不要捲動頁面 */
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+/* 手指按下時出現的虛擬搖桿 */
+.joy {
+  position: absolute;
+  width: 96px;
+  height: 96px;
+  margin: -48px 0 0 -48px;
+  border-radius: 50%;
+  border: 2px solid color-mix(in srgb, var(--muted) 70%, transparent);
+  background: color-mix(in srgb, var(--muted) 14%, transparent);
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: opacity 0.12s, transform 0.12s;
+}
+.joy[data-on] {
+  opacity: 1;
+  transform: scale(1);
+}
+.joy-knob {
+  position: absolute;
+  left: 28px;
+  top: 28px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.9;
 }
 .pacgame-hint {
   margin: 10px 0 0;
