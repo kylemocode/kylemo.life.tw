@@ -8,7 +8,7 @@ Mostly plain and minimal, with a few pixel-style touches: a playable Pac-Man maz
 
 - Pages: Home, About, Posts (search by title or tag), single post, 404. A 3D "Cowork" room exists but is hidden from the nav.
 - Chinese / English switch and light / dark theme, both remembered in `localStorage`.
-- `/preview`: desktop and mobile side by side in two iframes; navigation, scroll, language and theme stay in sync.
+- `/preview`: desktop and mobile side by side in two iframes; navigation, scroll, language and theme stay in sync. Only available on localhost; in production it shows the 404 page.
 - Mobile hamburger menu, page transitions, scroll reveals. Animations respect `prefers-reduced-motion`.
 - PWA: installable, with an offline cache.
 
@@ -27,10 +27,32 @@ npm run build   # type-check and build to dist/
 | What | File |
 | --- | --- |
 | Site name, nav, social links, playlist | `src/data/site.ts` |
-| Add or edit posts | `src/data/posts.ts` |
+| Add or edit posts (Markdown) | `content/posts/` (template: `content/_template.md`) |
+| Tag labels (zh / en) | `src/data/tags.ts` |
 | UI text (Chinese and English), tagline | `src/data/i18n.ts` |
 | Colors, fonts, spacing, animations | `src/styles/global.css` (theme tokens are at the top, in `:root`) |
 | Page content | `src/pages/` |
+
+## Writing posts
+
+Posts are Markdown files in `content/posts/`. The file name is the URL: `my-post.md` becomes `/blog/my-post`.
+
+```md
+---
+title: Post title
+description: One-line summary
+date: 2026-11-07
+tags: [life, career]
+---
+
+Body in Markdown: headings, lists, quotes, code blocks, links, images.
+```
+
+- Copy the template from `content/_template.md` (English version: `content/_template.en.md`). It documents every field and the supported Markdown.
+- Tags are keys defined in `src/data/tags.ts` (`life`, `career`, `nomad`), each with a Chinese and an English label. Add a new tag there first; tags not defined there are ignored and not shown.
+- `my-post.en.md` is the optional English version (needs only `title` and `description`). Without it, English mode shows the Chinese post.
+- Put images in `public/images/` and reference them as `![alt](/images/pic.png)`.
+- Publish with `git add`, `git commit`, `git push`.
 
 ## Project structure
 
@@ -39,7 +61,7 @@ src/
   main.tsx          Routes (which URL shows which page)
   i18n.tsx          Language provider and the t() helper
   components/       Header, footer, post list, PacGame, ScrambleText, Tetris,
-                    Chomper, JellyLink, MagneticLink, icons, ...
+                    Chomper, MagneticLink, icons, ...
   pages/            Home, About, Blog, PostPage, Preview, Workspace, NotFound
   data/             Site settings, posts, translations
   styles/           Global styles

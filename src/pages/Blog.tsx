@@ -1,11 +1,12 @@
 import { useSearchParams } from 'react-router-dom'
 import { Chomper } from '../components/Chomper'
 import { allTags, filterPosts, sortedPosts } from '../data/posts'
+import { tagLabel } from '../data/tags'
 import { useLang } from '../i18n'
 import { PostList } from '../components/PostList'
 
 export function Blog() {
-  const { t } = useLang()
+  const { t, lang } = useLang()
   const [params, setParams] = useSearchParams()
   const query = params.get('q') ?? ''
   const tag = params.get('tag') ?? ''
@@ -38,15 +39,15 @@ export function Blog() {
 
       {allTags.length > 0 && (
         <div className="tags tag-filter">
-          {allTags.map((t) => (
+          {allTags.map((k) => (
             <button
-              key={t}
+              key={k}
               type="button"
               className="tag"
-              aria-pressed={t === tag}
-              onClick={() => update({ tag: t === tag ? '' : t })}
+              aria-pressed={k === tag}
+              onClick={() => update({ tag: k === tag ? '' : k })}
             >
-              #{t}
+              #{tagLabel(k, lang)}
             </button>
           ))}
         </div>

@@ -12,12 +12,15 @@ const Workspace = lazy(() => import('./pages/Workspace').then((m) => ({ default:
 import { Preview } from './pages/Preview'
 import { NotFound } from './pages/NotFound'
 
+// /preview 只在本機（localhost）開放，上線後網址會落到 404
+const isLocal = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname)
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <LangProvider>
     <BrowserRouter basename={import.meta.env.BASE_URL}>
       <Routes>
-        <Route path="preview" element={<Preview />} />
+        {isLocal && <Route path="preview" element={<Preview />} />}
         <Route element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="blog" element={<Blog />} />

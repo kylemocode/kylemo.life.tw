@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { tagLabel } from '../data/tags'
 import { formatDate, localizePost, type Post } from '../data/posts'
 import { useLang } from '../i18n'
 
@@ -23,7 +24,7 @@ export function PostList({ posts: raw }: { posts: Post[] }) {
               <span className="tags">
                 {post.tags.map((t) => (
                   <span key={t} className="tag">
-                    #{t}
+                    #{tagLabel(t, lang)}
                   </span>
                 ))}
               </span>

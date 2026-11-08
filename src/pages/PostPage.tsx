@@ -1,7 +1,10 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
+import { marked } from 'marked'
 import { Link, useParams } from 'react-router-dom'
 import { formatDate, localizePost, posts } from '../data/posts'
+import { tagLabel } from '../data/tags'
 import { site } from '../data/site'
+import { MagneticLink } from '../components/MagneticLink'
 import { NotFound } from './NotFound'
 import { useLang } from '../i18n'
 
@@ -18,6 +21,8 @@ export function PostPage() {
     }
   }, [post])
 
+  const html = useMemo(() => (post ? (marked.parse(post.body, { async: false }) as string) : ''), [post])
+
   if (!post) return <NotFound />
 
   return (
@@ -30,20 +35,16 @@ export function PostPage() {
         <p className="tags">
           {post.tags.map((t) => (
             <Link key={t} className="tag" to={`/blog?tag=${encodeURIComponent(t)}`}>
-              #{t}
+              #{tagLabel(t, lang)}
             </Link>
           ))}
         </p>
       )}
-      <div className="prose">
-        {post.body.split(/\n\s*\n/).map((para, i) => (
-          <p key={i}>{para}</p>
-        ))}
-      </div>
-      <p>
-        <Link to="/blog" className="muted">
+      <div className="prose" dangerouslySetInnerHTML={{ __html: html }} />
+      <p className="post-back">
+        <MagneticLink to="/blog" small>
           {t('post.back')}
-        </Link>
+        </MagneticLink>
       </p>
     </article>
   )

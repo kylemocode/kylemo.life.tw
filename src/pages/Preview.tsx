@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLang } from '../i18n'
-import { JellyLink } from '../components/JellyLink'
+import { MagneticLink } from '../components/MagneticLink'
 
 // 桌機與手機並排的預覽：兩個 iframe 載入同一個網站，換頁與捲動互相同步
 const DESKTOP = { w: 1280, h: 800 }
@@ -84,9 +84,9 @@ export function Preview() {
       <header>
         <h1>{t('preview.title')}</h1>
         <span className="muted">{t('preview.hint')}</span>
-        <JellyLink to="/" small>
+        <MagneticLink to="/" small>
           {t('nav.home')}
-        </JellyLink>
+        </MagneticLink>
       </header>
       <div className="stages">
         {frame(a, DESKTOP, 'desktop')}
