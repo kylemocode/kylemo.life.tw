@@ -23,11 +23,15 @@
       href="https://fonts.googleapis.com/css2?family=Tiny5+Duo&family=Geist:wght@400..700&family=Geist+Mono:wght@400..600&family=Space+Grotesk:wght@500..700&display=swap"
     />
     <script>
-      // 在畫面出現前套用上次選的深淺色，避免閃一下
+      // 在畫面出現前套用上次選的深淺色，避免閃一下。沒選過就預設深色（不跟隨系統）
+      var t = 'dark'
       try {
-        var t = localStorage.getItem('theme')
-        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t
+        var saved = localStorage.getItem('theme')
+        if (saved === 'light' || saved === 'dark') t = saved
       } catch (e) {}
+      document.documentElement.dataset.theme = t
+      var metas = document.querySelectorAll('meta[name="theme-color"]')
+      for (var i = 0; i < metas.length; i++) metas[i].setAttribute('content', t === 'dark' ? '#161513' : '#fbfaf7')
     </script>
   </head>
   <body>
