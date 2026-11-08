@@ -1075,8 +1075,8 @@ button.tag:hover {
 @media (pointer: coarse), (max-width: 40rem) {
   .dpad {
     display: grid;
-    grid-template-columns: repeat(3, 56px);
-    grid-template-rows: repeat(2, 56px);
+    grid-template-columns: repeat(3, 44px);
+    grid-template-rows: repeat(2, 44px);
     gap: 6px;
     justify-content: center;
     margin: 12px 0 2px;
