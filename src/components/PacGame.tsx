@@ -460,7 +460,6 @@ export function PacGame() {
       // 吃到能量豆時，在原地飄出興趣的名字
       if (toast) {
         const k = 1 - toast.life / 1.6
-        const tx = Math.max(PAD + 50, Math.min(COLS * CELL - PAD - 50, toast.x * CELL + CELL / 2))
         // 在最上面一排時，字放在下方，不然會被畫面邊緣切掉
         const up = toast.y * CELL + CELL / 2 - 16 > PAD + 14
         const ty = toast.y * CELL + CELL / 2 + (up ? -16 - k * 10 : 18 + k * 10)
@@ -468,6 +467,9 @@ export function PacGame() {
         ctx.textAlign = 'center'
         ctx.textBaseline = 'middle'
         ctx.font = 'bold 15px "Geist", "PingFang TC", "Noto Sans TC", sans-serif'
+        // 依實際字寬把字限制在畫面可見範圍內，靠邊也不會被切掉
+        const half = ctx.measureText(toast.text).width / 2 + 4
+        const tx = Math.max(PAD + half + 6, Math.min(COLS * CELL - PAD - half - 6, toast.x * CELL + CELL / 2))
         ctx.lineWidth = 4
         ctx.strokeStyle = '#161513'
         ctx.strokeText(toast.text, tx, ty)
