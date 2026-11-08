@@ -474,6 +474,12 @@ main {
   padding-bottom: 64px;
 }
 
+@media (max-width: 40rem) {
+  main {
+    padding-bottom: 24px;
+  }
+}
+
 .site-footer .inner {
   display: flex;
   flex-wrap: wrap;
