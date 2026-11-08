@@ -106,6 +106,8 @@ export function PacGame() {
     let lives = 3
     let demo = true
     let over = false
+    let best = 0
+    let record = false
     let freeze = 0
     let scared = 0
     let mouth = 0
@@ -133,6 +135,7 @@ export function PacGame() {
       lives = 3
       demo = isDemo
       over = false
+      record = false
       speedUp = 1
       sync()
     }
@@ -204,6 +207,16 @@ export function PacGame() {
       lives--
       if (lives <= 0) {
         over = true
+        try {
+          best = Number(localStorage.getItem('pac-best')) || 0
+          record = score > best
+          if (record) {
+            best = score
+            localStorage.setItem('pac-best', String(score))
+          }
+        } catch {
+          best = Math.max(best, score)
+        }
         sync()
         return
       }
@@ -407,6 +420,24 @@ export function PacGame() {
         ctx.globalAlpha = 0.7
         ctx.fillRect(0, 0, COLS * CELL, ROWS * CELL)
         ctx.globalAlpha = 1
+        // 大大的 GAME OVER，加上分數與最高分
+        const cx = (COLS * CELL) / 2
+        const cy = (ROWS * CELL) / 2
+        const pad = (n: number) => String(n).padStart(5, '0')
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+        ctx.fillStyle = c.accent
+        ctx.font = `${CELL * 2.1}px "Tiny5 Duo", "Geist Mono", monospace`
+        ctx.fillText('GAME OVER', cx, cy - CELL * 0.9)
+        ctx.fillStyle = c.text
+        ctx.font = `bold ${CELL * 0.62}px "Geist Mono", ui-monospace, monospace`
+        ctx.fillText(`SCORE ${pad(score)}   BEST ${pad(best)}`, cx, cy + CELL * 0.9)
+        if (record) {
+          ctx.fillStyle = c.accent
+          ctx.fillText('NEW RECORD!', cx, cy + CELL * 1.9)
+        }
+        ctx.textAlign = 'start'
+        ctx.textBaseline = 'alphabetic'
       }
     }
 
@@ -502,7 +533,10 @@ export function PacGame() {
       </div>
       <p className="pacgame-hint">
         {hud.over ? (
-          t('game.over')
+          <>
+            <span className="hint-kb">{t('game.over')}</span>
+            <span className="hint-touch">{t('game.over.touch')}</span>
+          </>
         ) : (
           <>
             <span className="hint-kb">{t('game.hint')}</span>
