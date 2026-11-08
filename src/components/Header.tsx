@@ -30,13 +30,21 @@ export function Header() {
   }, [])
   const [menuOpen, setMenuOpen] = useState(false)
 
-  // 換頁或按 Esc 就收起手機選單
+  // 換頁、按 Esc 或點選單外面就收起手機選單
   useEffect(() => setMenuOpen(false), [pathname])
   useEffect(() => {
     if (!menuOpen) return
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setMenuOpen(false)
+    // 點選單以外的任何地方也收起
+    const onOutside = (e: PointerEvent) => {
+      if (!headerRef.current?.contains(e.target as Node)) setMenuOpen(false)
+    }
     window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
+    document.addEventListener('pointerdown', onOutside)
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      document.removeEventListener('pointerdown', onOutside)
+    }
   }, [menuOpen])
 
   // 別的視窗（例如雙螢幕預覽）切換主題時跟著變
