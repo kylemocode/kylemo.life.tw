@@ -79,8 +79,7 @@ function advance(e: Ent, dist: number, choose: (e: Ent) => void) {
 export function PacGame() {
   const { t } = useLang()
   const ref = useRef<HTMLCanvasElement>(null)
-  const wrapRef = useRef<HTMLDivElement>(null)
-  const joyRef = useRef<HTMLDivElement>(null)
+  const padRef = useRef<((d: { dx: number; dy: number }) => void) | null>(null)
   const [hud, setHud] = useState({ score: 0, lives: 3, demo: true, over: false })
 
   useEffect(() => {
@@ -462,79 +461,22 @@ export function PacGame() {
       const ddy = sy - (pac.y + 0.5)
       takeOver(Math.abs(ddx) > Math.abs(ddy) ? (ddx > 0 ? DIRS[0] : DIRS[1]) : ddy > 0 ? DIRS[2] : DIRS[3])
     }
-    // 觸控：按住畫面任一處，就在手指下出現搖桿，拖曳方向即控制吃豆人
-    const joy = joyRef.current!
-    const knob = joy.firstElementChild as HTMLElement
-    const R = 44
-    let joyId = -1
-    let ox = 0
-    let oy = 0
-    let joyDir: { dx: number; dy: number } | null = null
-    const joyDown = (e: PointerEvent) => {
-      if (e.pointerType === 'mouse' || joyId !== -1) return
-      joyId = e.pointerId
-      canvas.setPointerCapture(e.pointerId)
-      const r = wrapRef.current!.getBoundingClientRect()
-      ox = e.clientX
-      oy = e.clientY
-      joy.style.left = `${ox - r.left}px`
-      joy.style.top = `${oy - r.top}px`
-      knob.style.transform = 'translate(0px, 0px)'
-      joy.dataset.on = '1'
-      joyDir = null
-    }
-    const joyMove = (e: PointerEvent) => {
-      if (e.pointerId !== joyId) return
-      const dx = e.clientX - ox
-      const dy = e.clientY - oy
-      const clamp = (v: number) => Math.max(-R, Math.min(R, v))
-      const ax = Math.abs(dx)
-      const ay = Math.abs(dy)
-      if (Math.max(ax, ay) < 14) {
-        knob.style.transform = `translate(${clamp(dx)}px, ${clamp(dy)}px)`
-        return
-      }
-      // 只有四個方向：目前軸要被另一軸明顯超過（1.6 倍）才換軸，斜著拖時不會左右抖動
-      let horizontal = ax > ay
-      if (joyDir) {
-        const cur = joyDir.dx !== 0
-        horizontal = cur ? !(ay > ax * 1.6) : ax > ay * 1.6
-      }
-      const d = horizontal ? (dx > 0 ? DIRS[0] : DIRS[1]) : dy > 0 ? DIRS[2] : DIRS[3]
-      // 搖桿圓球也只沿著選定的軸移動，看得出沒有斜向
-      knob.style.transform = horizontal ? `translate(${clamp(dx)}px, 0px)` : `translate(0px, ${clamp(dy)}px)`
-      if (d !== joyDir) {
-        joyDir = d
-        takeOver(d)
-      }
-    }
-    const joyUp = (e: PointerEvent) => {
-      if (e.pointerId !== joyId) return
-      joyId = -1
-      delete joy.dataset.on
-    }
+    // 手機的方向鍵小鍵盤（畫面下方的按鈕）會透過這個接手操控
+    padRef.current = takeOver
     const io = new IntersectionObserver(([en]) => (visible = en.isIntersecting))
     io.observe(canvas)
     window.addEventListener('keydown', onKey)
     canvas.addEventListener('pointerdown', onPointer)
-    canvas.addEventListener('pointerdown', joyDown)
-    canvas.addEventListener('pointermove', joyMove)
-    canvas.addEventListener('pointerup', joyUp)
-    canvas.addEventListener('pointercancel', joyUp)
     return () => {
       cancelAnimationFrame(raf)
       io.disconnect()
       window.removeEventListener('keydown', onKey)
       canvas.removeEventListener('pointerdown', onPointer)
-      canvas.removeEventListener('pointerdown', joyDown)
-      canvas.removeEventListener('pointermove', joyMove)
-      canvas.removeEventListener('pointerup', joyUp)
-      canvas.removeEventListener('pointercancel', joyUp)
     }
   }, [])
 
   return (
-    <div className="pacgame" ref={wrapRef}>
+    <div className="pacgame">
       <div className="pacgame-hud">
         <span>
           {t('game.score')} {String(hud.score).padStart(5, '0')}
@@ -542,10 +484,32 @@ export function PacGame() {
         <span aria-hidden="true">{hud.demo ? 'DEMO' : '●'.repeat(hud.lives)}</span>
       </div>
       <canvas ref={ref} className="pacgame-canvas" aria-label={t('game.label')} />
-      <div className="joy" ref={joyRef} aria-hidden="true">
-        <div className="joy-knob" />
+      <div className="dpad" aria-hidden="true">
+        {([['up', 3, '▲'], ['left', 1, '◀'], ['right', 0, '▶'], ['down', 2, '▼']] as const).map(([k, i, g]) => (
+          <button
+            key={k}
+            type="button"
+            tabIndex={-1}
+            className={`dpad-${k}`}
+            onPointerDown={(e) => {
+              e.preventDefault()
+              padRef.current?.(DIRS[i])
+            }}
+          >
+            {g}
+          </button>
+        ))}
       </div>
-      <p className="pacgame-hint">{hud.over ? t('game.over') : t('game.hint')}</p>
+      <p className="pacgame-hint">
+        {hud.over ? (
+          t('game.over')
+        ) : (
+          <>
+            <span className="hint-kb">{t('game.hint')}</span>
+            <span className="hint-touch">{t('game.hint.touch')}</span>
+          </>
+        )}
+      </p>
     </div>
   )
 }

@@ -1065,38 +1065,43 @@ button.tag:hover {
   height: auto;
   aspect-ratio: 488 / 376;
 }
-.pacgame-canvas {
-  touch-action: none; /* 觸控拖曳是搖桿，不要捲動頁面 */
-  -webkit-touch-callout: none;
-  user-select: none;
+.dpad {
+  display: none;
 }
-/* 手指按下時出現的虛擬搖桿 */
-.joy {
-  position: absolute;
-  width: 96px;
-  height: 96px;
-  margin: -48px 0 0 -48px;
-  border-radius: 50%;
-  border: 2px solid color-mix(in srgb, var(--muted) 70%, transparent);
-  background: color-mix(in srgb, var(--muted) 14%, transparent);
-  pointer-events: none;
-  opacity: 0;
-  transform: scale(0.8);
-  transition: opacity 0.12s, transform 0.12s;
+.hint-touch {
+  display: none;
 }
-.joy[data-on] {
-  opacity: 1;
-  transform: scale(1);
-}
-.joy-knob {
-  position: absolute;
-  left: 28px;
-  top: 28px;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: var(--accent);
-  opacity: 0.9;
+/* 觸控裝置：顯示方向鍵小鍵盤，提示改成點按鈕 */
+@media (pointer: coarse) {
+  .dpad {
+    display: grid;
+    grid-template-columns: repeat(3, 56px);
+    grid-template-rows: repeat(2, 56px);
+    gap: 8px;
+    justify-content: center;
+    margin: 14px 0 4px;
+  }
+  .dpad button {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--muted) 12%, transparent);
+    color: var(--muted);
+    font-size: 18px;
+    padding: 0;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .dpad button:active {
+    background: color-mix(in srgb, var(--accent) 30%, transparent);
+    color: var(--accent);
+  }
+  .dpad-up { grid-column: 2; grid-row: 1; }
+  .dpad-left { grid-column: 1; grid-row: 2; }
+  .dpad-down { grid-column: 2; grid-row: 2; }
+  .dpad-right { grid-column: 3; grid-row: 2; }
+  .hint-kb { display: none; }
+  .hint-touch { display: inline; }
 }
 .pacgame-hint {
   margin: 10px 0 0;
