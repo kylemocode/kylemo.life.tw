@@ -1059,6 +1059,20 @@ button.tag:hover {
   letter-spacing: 0.08em;
   color: var(--muted);
 }
+.pacgame-lives {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.pacgame-lives .heart {
+  width: 18px;
+  height: 16px;
+  color: var(--accent);
+}
+.pacgame-lives .heart.lost {
+  color: var(--muted);
+  opacity: 0.3;
+}
 .pacgame-canvas {
   display: block;
   width: 100%;

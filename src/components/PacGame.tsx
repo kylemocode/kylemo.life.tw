@@ -512,7 +512,16 @@ export function PacGame() {
         <span>
           {t('game.score')} {String(hud.score).padStart(5, '0')}
         </span>
-        <span aria-hidden="true">{hud.demo ? 'DEMO' : '●'.repeat(hud.lives)}</span>
+        <span className="pacgame-lives" aria-hidden="true">
+          {hud.demo
+            ? 'DEMO'
+            : [0, 1, 2].map((i) => (
+                <svg key={i} viewBox="0 0 9 8" shapeRendering="crispEdges" className={i < hud.lives ? 'heart' : 'heart lost'}>
+                  {/* 像素愛心 */}
+                  <path d="M1 0h2v1h1v1h1V1h1V0h2v1h1v3H8v1H7v1H6v1H5v1H4V7H3V6H2V5H1V4H0V1h1z" fill="currentColor" />
+                </svg>
+              ))}
+        </span>
       </div>
       <canvas ref={ref} className="pacgame-canvas" aria-label={t('game.label')} />
       <div className="dpad" aria-hidden="true">
