@@ -485,16 +485,24 @@ export function PacGame() {
     }
     const joyMove = (e: PointerEvent) => {
       if (e.pointerId !== joyId) return
-      let dx = e.clientX - ox
-      let dy = e.clientY - oy
-      const len = Math.hypot(dx, dy)
-      if (len > R) {
-        dx = (dx / len) * R
-        dy = (dy / len) * R
+      const dx = e.clientX - ox
+      const dy = e.clientY - oy
+      const clamp = (v: number) => Math.max(-R, Math.min(R, v))
+      const ax = Math.abs(dx)
+      const ay = Math.abs(dy)
+      if (Math.max(ax, ay) < 14) {
+        knob.style.transform = `translate(${clamp(dx)}px, ${clamp(dy)}px)`
+        return
       }
-      knob.style.transform = `translate(${dx}px, ${dy}px)`
-      if (len < 12) return
-      const d = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? DIRS[0] : DIRS[1]) : dy > 0 ? DIRS[2] : DIRS[3]
+      // 只有四個方向：目前軸要被另一軸明顯超過（1.6 倍）才換軸，斜著拖時不會左右抖動
+      let horizontal = ax > ay
+      if (joyDir) {
+        const cur = joyDir.dx !== 0
+        horizontal = cur ? !(ay > ax * 1.6) : ax > ay * 1.6
+      }
+      const d = horizontal ? (dx > 0 ? DIRS[0] : DIRS[1]) : dy > 0 ? DIRS[2] : DIRS[3]
+      // 搖桿圓球也只沿著選定的軸移動，看得出沒有斜向
+      knob.style.transform = horizontal ? `translate(${clamp(dx)}px, 0px)` : `translate(0px, ${clamp(dy)}px)`
       if (d !== joyDir) {
         joyDir = d
         takeOver(d)
