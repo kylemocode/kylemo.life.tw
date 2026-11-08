@@ -111,6 +111,7 @@ export function PacGame() {
     let freeze = 0
     let scared = 0
     let mouth = 0
+    let facing = 0
     let visible = true
     let raf = 0
     let last = 0
@@ -407,7 +408,9 @@ export function PacGame() {
       const px = pac.x * CELL + CELL / 2
       const py = pac.y * CELL + CELL / 2
       const open = (Math.sin(mouth) + 1) / 2 * 0.55 + 0.05
-      const face = pac.dx < 0 ? Math.PI : pac.dy > 0 ? Math.PI / 2 : pac.dy < 0 ? -Math.PI / 2 : 0
+      // 撞牆停下來時 dx、dy 都是 0，要沿用最後一次的朝向，不然嘴巴會跳回朝右
+      if (pac.dx || pac.dy) facing = pac.dx < 0 ? Math.PI : pac.dy > 0 ? Math.PI / 2 : pac.dy < 0 ? -Math.PI / 2 : 0
+      const face = facing
       ctx.fillStyle = c.accent
       ctx.beginPath()
       ctx.moveTo(px, py)
