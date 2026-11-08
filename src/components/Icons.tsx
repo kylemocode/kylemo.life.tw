@@ -44,6 +44,21 @@ export function Icon({ name }: IconProps) {
           <circle cx="17.2" cy="6.8" r="0.6" fill="currentColor" />
         </svg>
       )
+    case 'linkedin':
+      return (
+        <svg {...common}>
+          <rect x="3.5" y="3.5" width="17" height="17" rx="3" />
+          <path d="M8 10.5V16M8 7.8v.1M12 16v-5.5M12 13c0-1.6 1-2.6 2.4-2.6S17 11.3 17 13v3" />
+        </svg>
+      )
+    case 'medium':
+      return (
+        <svg {...common}>
+          <ellipse cx="8" cy="12" rx="4.5" ry="5.5" />
+          <ellipse cx="16.2" cy="12" rx="2" ry="5" />
+          <path d="M21 7.5v9" />
+        </svg>
+      )
     case 'youtube':
       return (
         <svg {...common}>

@@ -17,11 +17,11 @@ export const site = {
   // YouTube 例：https://www.youtube.com/playlist?list=PLxxxx
   // 之後在原平台增減歌曲，網站會自動跟著變。
   playlistUrl: 'https://www.youtube.com/playlist?list=PL8F6B0753B2CCA128', // 暫用的公開 Jazz 歌單，之後換成自己的
-  // icon 可用：instagram、youtube、mail、rss
+  // icon 可用：instagram、linkedin、medium、mail、youtube、rss（在 components/Icons.tsx）
   socials: [
-    { label: '[社群 1]', href: '#', icon: 'instagram' },
-    { label: '[社群 2]', href: '#', icon: 'youtube' },
-    { label: '[社群 3]', href: '#', icon: 'mail' },
-    { label: 'RSS 訂閱', href: '#', icon: 'rss' },
+    { label: 'Instagram', href: 'https://www.instagram.com/kylemo.life.tw/', icon: 'instagram' },
+    { label: 'LinkedIn', href: 'https://www.linkedin.com/in/kyle-mo-880a91185/', icon: 'linkedin' },
+    { label: 'Medium', href: 'https://medium.com/@oldmo860617', icon: 'medium' },
+    { label: 'Email', href: 'mailto:oldmo860617@gmail.com', icon: 'mail' },
   ],
 } as const
