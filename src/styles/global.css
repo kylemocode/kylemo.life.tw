@@ -1072,7 +1072,7 @@ button.tag:hover {
   display: none;
 }
 /* 觸控裝置：顯示方向鍵小鍵盤，提示改成點按鈕 */
-@media (pointer: coarse) {
+@media (pointer: coarse), (max-width: 40rem) {
   .dpad {
     display: grid;
     grid-template-columns: repeat(3, 56px);
