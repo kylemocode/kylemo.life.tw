@@ -89,7 +89,7 @@ export function PacGame() {
   const { t } = useLang()
   const ref = useRef<HTMLCanvasElement>(null)
   const padRef = useRef<((d: { dx: number; dy: number }) => void) | null>(null)
-  const [hud, setHud] = useState({ score: 0, lives: 3, demo: true, over: false })
+  const [hud, setHud] = useState({ score: 0, lives: 3, demo: true, over: false, level: 1 })
 
   useEffect(() => {
     const canvas = ref.current!
@@ -121,6 +121,8 @@ export function PacGame() {
     let scared = 0
     let mouth = 0
     let facing = 0
+    let level = 1
+    let banner = 0
     let pellets: { x: number; y: number; k: number }[] = []
     let toast: { text: string; x: number; y: number; life: number } | null = null
     let visible = true
@@ -128,7 +130,7 @@ export function PacGame() {
     let last = 0
     let speedUp = 1
 
-    const sync = () => setHud({ score, lives, demo, over })
+    const sync = () => setHud({ score, lives, demo, over, level })
 
     const resetDots = () => {
       dots = MAP.map((r) => [...r].map((c) => c === '.'))
@@ -169,6 +171,8 @@ export function PacGame() {
       over = false
       record = false
       toast = null
+      level = 1
+      banner = 0
       speedUp = 1
       sync()
     }
@@ -265,6 +269,7 @@ export function PacGame() {
       }
       mouth += dt * 9
       if (toast && (toast.life -= dt) <= 0) toast = null
+      if (banner > 0) banner -= dt
       if (scared > 0) scared -= dt
       advance(pac, 5.2 * speedUp * dt, choosePac)
       const px = Math.round(pac.x)
@@ -282,6 +287,9 @@ export function PacGame() {
           resetDots()
           resetPositions()
           speedUp = Math.min(1.4, speedUp + 0.08)
+          level++
+          banner = 1.8
+          sync()
         }
       }
       for (const g of ghosts) {
@@ -477,6 +485,21 @@ export function PacGame() {
       ctx.closePath()
       ctx.fill()
       ghosts.forEach((g, i) => drawGhost(g, i, c))
+      // 通關：中間浮出 LEVEL n，慢慢淡出
+      if (banner > 0 && !over) {
+        ctx.globalAlpha = Math.min(1, banner * 1.5)
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+        ctx.font = `${CELL * 1.8}px "Tiny5 Duo", "Geist Mono", monospace`
+        ctx.lineWidth = 6
+        ctx.strokeStyle = '#161513'
+        ctx.strokeText(`LEVEL ${level}`, (COLS * CELL) / 2, (ROWS * CELL) / 2 - CELL * 0.5)
+        ctx.fillStyle = c.accent
+        ctx.fillText(`LEVEL ${level}`, (COLS * CELL) / 2, (ROWS * CELL) / 2 - CELL * 0.5)
+        ctx.textAlign = 'start'
+        ctx.textBaseline = 'alphabetic'
+        ctx.globalAlpha = 1
+      }
       if (over) {
         ctx.fillStyle = c.bg
         ctx.globalAlpha = 0.7
@@ -494,9 +517,10 @@ export function PacGame() {
         ctx.fillStyle = c.text
         ctx.font = `bold ${CELL * 0.62}px "Geist Mono", ui-monospace, monospace`
         ctx.fillText(`SCORE ${pad(score)}   BEST ${pad(best)}`, cx, cy + CELL * 0.9)
+        ctx.fillText(`LEVEL ${level}`, cx, cy + CELL * 1.7)
         if (record) {
           ctx.fillStyle = c.accent
-          ctx.fillText('NEW RECORD!', cx, cy + CELL * 1.9)
+          ctx.fillText('NEW RECORD!', cx, cy + CELL * 2.5)
         }
         ctx.textAlign = 'start'
         ctx.textBaseline = 'alphabetic'
@@ -573,6 +597,7 @@ export function PacGame() {
       <div className="pacgame-hud">
         <span>
           {t('game.score')} {String(hud.score).padStart(5, '0')}
+          {!hud.demo && <span className="pacgame-level">LV {hud.level}</span>}
         </span>
         <span className="pacgame-lives" aria-hidden="true">
           {hud.demo

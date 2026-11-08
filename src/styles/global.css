@@ -1059,6 +1059,10 @@ button.tag:hover {
   letter-spacing: 0.08em;
   color: var(--muted);
 }
+.pacgame-level {
+  margin-left: 14px;
+  color: var(--accent);
+}
 .pacgame-lives {
   display: inline-flex;
   align-items: center;
