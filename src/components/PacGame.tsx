@@ -41,7 +41,8 @@ const ICONS = [
   ['.#####.', '#....#.', '#.##.#.', '#....#.', '#.##.#.', '#....#.', '.#####.'], // 閱讀
   ['.##..##.', '.##..##.', '########', '.##..##.', '.##..##.', '.#....#.'], // 交朋友
 ]
-const PELLET_KEYS = ['game.pellet.0', 'game.pellet.1', 'game.pellet.2', 'game.pellet.3'] as const
+// 吃到時浮出的字固定用英文（兩種語言都一樣，比較好看）
+const PELLET_LABELS = ['Guitar', 'Dancing', 'Reading', 'Making friends']
 const GHOST_COLORS = ['#d9534f', '#e59ab5', '#4fb0c6']
 
 type Ent = { x: number; y: number; dx: number; dy: number }
@@ -86,8 +87,6 @@ function advance(e: Ent, dist: number, choose: (e: Ent) => void) {
 
 export function PacGame() {
   const { t } = useLang()
-  const tRef = useRef(t)
-  tRef.current = t
   const ref = useRef<HTMLCanvasElement>(null)
   const padRef = useRef<((d: { dx: number; dy: number }) => void) | null>(null)
   const [hud, setHud] = useState({ score: 0, lives: 3, demo: true, over: false })
@@ -276,7 +275,7 @@ export function PacGame() {
         if (pl) {
           scared = 6
           score += 50
-          toast = { text: tRef.current(PELLET_KEYS[pl.k]), x: px, y: py, life: 1.6 }
+          toast = { text: PELLET_LABELS[pl.k], x: px, y: py, life: 1.6 }
         } else score += 10
         sync()
         if (!dotsLeft()) {
@@ -448,15 +447,17 @@ export function PacGame() {
       if (toast) {
         const k = 1 - toast.life / 1.6
         const tx = Math.max(PAD + 50, Math.min(COLS * CELL - PAD - 50, toast.x * CELL + CELL / 2))
-        const ty = toast.y * CELL + CELL / 2 - 16 - k * 10
+        // 在最上面一排時，字放在下方，不然會被畫面邊緣切掉
+        const up = toast.y * CELL + CELL / 2 - 16 > PAD + 14
+        const ty = toast.y * CELL + CELL / 2 + (up ? -16 - k * 10 : 18 + k * 10)
         ctx.globalAlpha = Math.min(1, toast.life * 2)
         ctx.textAlign = 'center'
         ctx.textBaseline = 'middle'
         ctx.font = 'bold 15px "Geist", "PingFang TC", "Noto Sans TC", sans-serif'
         ctx.lineWidth = 4
-        ctx.strokeStyle = c.bg
+        ctx.strokeStyle = '#161513'
         ctx.strokeText(toast.text, tx, ty)
-        ctx.fillStyle = c.accent
+        ctx.fillStyle = '#ffffff'
         ctx.fillText(toast.text, tx, ty)
         ctx.textAlign = 'start'
         ctx.textBaseline = 'alphabetic'
