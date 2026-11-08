@@ -3,10 +3,10 @@ import { useLang } from '../i18n'
 
 // 首頁的吃豆人小遊戲：一開始自己玩（展示模式），按方向鍵 / WASD 或點擊畫面就換你操控。
 // 迷宮的牆排成我的名字（KYLE / MO 兩行），尺寸和原本的迷宮一樣。
-// # 牆（畫成空心輪廓）、X 排成名字的牆（畫成實心方塊）、. 點點、o 能量豆、P 吃豆人起點、G 鬼起點、空白是走不到的地方（沒有點點）
+// # 牆（畫成空心輪廓）、X 排成名字的牆（畫成實心方塊）、. 點點、P 吃豆人起點、G 鬼起點、空白是走不到的地方（沒有點點）
 const MAP = [
   '###################',
-  '#o...............o#',
+  '#.................#',
   '#.X.X.X.X.X...XXX.#',
   '#.X.X.X.X.X...X...#',
   '#.XX...X..X...XX..#',
@@ -18,7 +18,7 @@ const MAP = [
   '#....X.X.X.X X....#',
   '#.##.X...X.X X.##.#',
   '#..#.X...X.XXX.#..#',
-  '#o.......P.......o#',
+  '#........P........#',
   '###################',
 ]
 const COLS = MAP[0].length
@@ -34,6 +34,14 @@ const DIRS = [
   { dx: 0, dy: 1 },
   { dx: 0, dy: -1 },
 ]
+// 能量豆是我的四個興趣：吉他、跳舞、閱讀、交朋友。每局隨機放在四個地方，用 8×8 像素圖示表示
+const ICONS = [
+  ['......##', '.....##.', '....##..', '...##...', '.####...', '######..', '##..##..', '.####...'], // 吉他
+  ['#..##..#', '#..##..#', '.######.', '...##...', '...##...', '..#..#..', '.#....#.'], // 跳舞
+  ['.#####.', '#....#.', '#.##.#.', '#....#.', '#.##.#.', '#....#.', '.#####.'], // 閱讀
+  ['.##..##.', '.##..##.', '########', '.##..##.', '.##..##.', '.#....#.'], // 交朋友
+]
+const PELLET_KEYS = ['game.pellet.0', 'game.pellet.1', 'game.pellet.2', 'game.pellet.3'] as const
 const GHOST_COLORS = ['#d9534f', '#e59ab5', '#4fb0c6']
 
 type Ent = { x: number; y: number; dx: number; dy: number }
@@ -78,6 +86,8 @@ function advance(e: Ent, dist: number, choose: (e: Ent) => void) {
 
 export function PacGame() {
   const { t } = useLang()
+  const tRef = useRef(t)
+  tRef.current = t
   const ref = useRef<HTMLCanvasElement>(null)
   const padRef = useRef<((d: { dx: number; dy: number }) => void) | null>(null)
   const [hud, setHud] = useState({ score: 0, lives: 3, demo: true, over: false })
@@ -112,6 +122,8 @@ export function PacGame() {
     let scared = 0
     let mouth = 0
     let facing = 0
+    let pellets: { x: number; y: number; k: number }[] = []
+    let toast: { text: string; x: number; y: number; life: number } | null = null
     let visible = true
     let raf = 0
     let last = 0
@@ -120,7 +132,27 @@ export function PacGame() {
     const sync = () => setHud({ score, lives, demo, over })
 
     const resetDots = () => {
-      dots = MAP.map((r) => [...r].map((c) => c === '.' || c === 'o'))
+      dots = MAP.map((r) => [...r].map((c) => c === '.'))
+      // 隨機挑四個彼此有距離、離起點和鬼屋也有距離的點點當能量豆
+      const cells: { x: number; y: number }[] = []
+      dots.forEach((row, y) => row.forEach((on, x) => on && cells.push({ x, y })))
+      for (let i = cells.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1))
+        ;[cells[i], cells[j]] = [cells[j], cells[i]]
+      }
+      const dist = (a: { x: number; y: number }, b: { x: number; y: number }) => Math.abs(a.x - b.x) + Math.abs(a.y - b.y)
+      const picked: { x: number; y: number }[] = []
+      for (const gap of [7, 5, 3, 0]) {
+        for (const c of cells) {
+          if (picked.length >= 4) break
+          if (picked.includes(c)) continue
+          if (dist(c, pacStart) < 4 || ghostStarts.some((g) => dist(c, g) < 3)) continue
+          if (picked.every((q) => dist(c, q) >= gap)) picked.push(c)
+        }
+        if (picked.length >= 4) break
+      }
+      const kinds = [0, 1, 2, 3].sort(() => Math.random() - 0.5)
+      pellets = picked.map((c, i) => ({ ...c, k: kinds[i] }))
     }
     const resetPositions = () => {
       pac = { x: pacStart.x, y: pacStart.y, dx: 0, dy: 0 }
@@ -137,6 +169,7 @@ export function PacGame() {
       demo = isDemo
       over = false
       record = false
+      toast = null
       speedUp = 1
       sync()
     }
@@ -232,15 +265,18 @@ export function PacGame() {
         return
       }
       mouth += dt * 9
+      if (toast && (toast.life -= dt) <= 0) toast = null
       if (scared > 0) scared -= dt
       advance(pac, 5.2 * speedUp * dt, choosePac)
       const px = Math.round(pac.x)
       const py = Math.round(pac.y)
       if (Math.abs(pac.x - px) < 0.35 && Math.abs(pac.y - py) < 0.35 && dots[py]?.[px]) {
         dots[py][px] = false
-        if (MAP[py][px] === 'o') {
+        const pl = pellets.find((q) => q.x === px && q.y === py)
+        if (pl) {
           scared = 6
           score += 50
+          toast = { text: tRef.current(PELLET_KEYS[pl.k]), x: px, y: py, life: 1.6 }
         } else score += 10
         sync()
         if (!dotsLeft()) {
@@ -395,15 +431,37 @@ export function PacGame() {
           if (!dots[y]?.[x]) continue
           const cx = x * CELL + CELL / 2
           const cy = y * CELL + CELL / 2
-          if (MAP[y][x] === 'o') {
+          const pl = pellets.find((q) => q.x === x && q.y === y)
+          if (pl) {
+            const icon = ICONS[pl.k]
+            const S = 3
+            const ox = cx - (icon[0].length * S) / 2
+            const oy = cy - (icon.length * S) / 2 + (pulse ? -1 : 1)
             ctx.fillStyle = c.accent
-            const s = pulse ? 10 : 8
-            ctx.fillRect(cx - s / 2, cy - s / 2, s, s)
+            icon.forEach((row, r) => [...row].forEach((ch, q) => ch === '#' && ctx.fillRect(ox + q * S, oy + r * S, S, S)))
           } else {
             ctx.fillStyle = c.muted
             ctx.fillRect(cx - 2, cy - 2, 4, 4)
           }
         }
+      // 吃到能量豆時，在原地飄出興趣的名字
+      if (toast) {
+        const k = 1 - toast.life / 1.6
+        const tx = Math.max(PAD + 50, Math.min(COLS * CELL - PAD - 50, toast.x * CELL + CELL / 2))
+        const ty = toast.y * CELL + CELL / 2 - 16 - k * 10
+        ctx.globalAlpha = Math.min(1, toast.life * 2)
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+        ctx.font = 'bold 15px "Geist", "PingFang TC", "Noto Sans TC", sans-serif'
+        ctx.lineWidth = 4
+        ctx.strokeStyle = c.bg
+        ctx.strokeText(toast.text, tx, ty)
+        ctx.fillStyle = c.accent
+        ctx.fillText(toast.text, tx, ty)
+        ctx.textAlign = 'start'
+        ctx.textBaseline = 'alphabetic'
+        ctx.globalAlpha = 1
+      }
       // 吃豆人
       const px = pac.x * CELL + CELL / 2
       const py = pac.y * CELL + CELL / 2
