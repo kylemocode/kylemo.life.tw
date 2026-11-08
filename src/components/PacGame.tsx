@@ -597,7 +597,7 @@ export function PacGame() {
       <div className="pacgame-hud">
         <span>
           {t('game.score')} {String(hud.score).padStart(5, '0')}
-          {!hud.demo && <span className="pacgame-level">LV {hud.level}</span>}
+          {!hud.demo && <span className="pacgame-level">Level {hud.level}</span>}
         </span>
         <span className="pacgame-lives" aria-hidden="true">
           {hud.demo
