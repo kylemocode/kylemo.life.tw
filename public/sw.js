@@ -2,7 +2,7 @@
 // - 頁面（導覽請求）：先連網路，失敗時用快取的 index.html（所以離線也能開 SPA）
 // - 靜態檔（js/css/圖片/字型）：先用快取，背景更新（stale-while-revalidate）
 // 改版時把 VERSION 加一，舊快取就會被清掉。
-const VERSION = 'v2'
+const VERSION = 'v3'
 const CACHE = `kylemo-${VERSION}`
 const PRECACHE = ['/', '/manifest.webmanifest', '/pwa-192.png', '/pwa-512.png', '/favicon.png']
 
