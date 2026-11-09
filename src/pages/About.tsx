@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { Reveal } from '../components/Reveal'
 import { site } from '../data/site'
 import { tagLabel, tagLabels } from '../data/tags'
 import { useLang } from '../i18n'
@@ -20,43 +21,49 @@ export function About() {
         <p className="meta">{t('about.role')}</p>
         <p>{t('about.p1')}</p>
         <p>{t('about.p2')}</p>
-        <h2 className="about-sub">{t('about.helpTitle')}</h2>
-        <ul className="about-help">
-          {HELP.map((k) => (
-            <li key={k}>{t(k)}</li>
-          ))}
-        </ul>
-        <p>{t('about.cta')}</p>
+        <Reveal>
+          <h2 className="about-sub">{t('about.helpTitle')}</h2>
+          <ul className="about-help">
+            {HELP.map((k) => (
+              <li key={k}>{t(k)}</li>
+            ))}
+          </ul>
+          <p>{t('about.cta')}</p>
+        </Reveal>
 
-        <h2 className="about-sub">{t('about.blogTitle')}</h2>
-        <p>{t('about.blogIntro')}</p>
-        <ul className="about-help">
-          {(Object.keys(tagLabels) as (keyof typeof BLOG)[]).map((k) => (
-            <li key={k}>
-              <Link to={`/blog?tag=${k}`}>
-                <strong>{tagLabel(k, lang)}</strong>
-              </Link>
-              {sep}
-              {t(BLOG[k])}
-            </li>
-          ))}
-        </ul>
-
-        <h2 className="about-sub">{t('about.whyTitle')}</h2>
-        <p>{t('about.whyIntro')}</p>
-        <ul className="about-help">
-          {WHY.map((k) => {
-            const [label, desc] = t(k).split('|')
-            return (
+        <Reveal>
+          <h2 className="about-sub">{t('about.blogTitle')}</h2>
+          <p>{t('about.blogIntro')}</p>
+          <ul className="about-help">
+            {(Object.keys(tagLabels) as (keyof typeof BLOG)[]).map((k) => (
               <li key={k}>
-                <strong>{label}</strong>
+                <Link to={`/blog?tag=${k}`}>
+                  <strong>{tagLabel(k, lang)}</strong>
+                </Link>
                 {sep}
-                {desc}
+                {t(BLOG[k])}
               </li>
-            )
-          })}
-        </ul>
-        <p>{t('about.whyEnd')}</p>
+            ))}
+          </ul>
+        </Reveal>
+
+        <Reveal>
+          <h2 className="about-sub">{t('about.whyTitle')}</h2>
+          <p>{t('about.whyIntro')}</p>
+          <ul className="about-help">
+            {WHY.map((k) => {
+              const [label, desc] = t(k).split('|')
+              return (
+                <li key={k}>
+                  <strong>{label}</strong>
+                  {sep}
+                  {desc}
+                </li>
+              )
+            })}
+          </ul>
+          <p>{t('about.whyEnd')}</p>
+        </Reveal>
       </div>
     </section>
   )
