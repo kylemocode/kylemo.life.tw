@@ -57,7 +57,6 @@ const zh = {
   'about.help.5': '講師邀約',
   'about.help.6': '各類有趣的合作',
   'about.cta': '任何朋友有這些需求，歡迎引薦或跟我聊聊。',
-  'about.mail': '寫信給我',
   'cowork.minimize': '收合播放器',
   'cowork.expand': '🎵 播放器'
 }
@@ -117,7 +116,6 @@ const en: Record<keyof typeof zh, string> = {
   'about.help.5': 'Speaking invitations',
   'about.help.6': 'Fun collaborations of all kinds',
   'about.cta': 'If any friend has these needs, feel free to introduce them or chat with me.',
-  'about.mail': 'Email me',
   'cowork.minimize': 'Hide player',
   'cowork.expand': '🎵 Player'
 }

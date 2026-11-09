@@ -913,11 +913,6 @@ button.tag:hover {
   height: 6px;
   background: var(--accent);
 }
-.about-mail {
-  color: var(--accent);
-  text-decoration: underline;
-  text-underline-offset: 4px;
-}
 .route > .about { animation: none; }
 
 /* Cowork：播放器從下方滑入 */

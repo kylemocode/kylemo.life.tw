@@ -2,7 +2,6 @@ import { site } from '../data/site'
 import { useLang } from '../i18n'
 
 const HELP = ['about.help.0', 'about.help.1', 'about.help.2', 'about.help.3', 'about.help.4', 'about.help.5', 'about.help.6'] as const
-const email = site.socials.find((s) => s.icon === 'mail')?.href
 
 export function About() {
   const { t } = useLang()
@@ -23,13 +22,6 @@ export function About() {
           ))}
         </ul>
         <p>{t('about.cta')}</p>
-        {email && (
-          <p>
-            <a className="about-mail" href={email}>
-              {t('about.mail')}
-            </a>
-          </p>
-        )}
       </div>
     </section>
   )
