@@ -890,6 +890,9 @@ button.tag:hover {
 .about-text > :nth-child(3) { animation-delay: 0.25s; }
 .about-text > :nth-child(4) { animation-delay: 0.35s; }
 .about-text > :nth-child(n + 5) { animation-delay: 0.45s; }
+.about-lines {
+  white-space: pre-line; /* 保留文字裡的換行 */
+}
 .about-sub {
   margin: 2rem 0 0.75rem;
   font-size: 1.125rem;

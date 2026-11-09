@@ -24,7 +24,7 @@ export function About() {
         <h1>{t('page.about')}</h1>
         <p className="meta">{t('about.role')}</p>
         <p>{t('about.p1')}</p>
-        <p>{t('about.p2')}</p>
+        <p className="about-lines">{t('about.p2')}</p>
         <Reveal>
           <h2 className="about-sub">
             <PixelText text={t('about.helpTitle')} />
