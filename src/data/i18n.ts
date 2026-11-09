@@ -48,10 +48,10 @@ const zh = {
   'about.role': '資深軟體工程師・社群經理・作者・Product Builder',
   'about.p1': '嗨，我是 Kyle，也可以叫我老莫！目前在一間美商資安公司擔任資深軟體工程師，同時是一個產品人訂閱制共學社群的社群經理。',
   'about.p2': '喜歡參與社群（常當籌辦者）、數位遊牧、閱讀，也喜歡分享學習與反思的歷程。出版過技術書籍《今晚來點 Web 前端效能優化大補帖》，有豐富的技術講者經驗。',
-  'about.helpTitle': '我可以幫上的忙',
-  'about.help.0': '職涯諮詢（短期、長期，已累積 50+ 諮詢人次）',
+  'about.helpTitle': '我提供的服務',
+  'about.help.0': '職涯諮詢|短期、長期，已累積 50+ 諮詢人次',
   'about.help.1': '軟體接案',
-  'about.help.2': '一人公司、小型企業的軟體或 AI 顧問',
+  'about.help.2': '軟體或 AI 顧問|一人公司、小型企業',
   'about.help.3': '書籍試閱',
   'about.help.4': '程式教學／家教',
   'about.help.5': '講師邀約',
@@ -69,7 +69,6 @@ const zh = {
   'about.why.2': '興趣能量球|吉他、跳舞、閱讀、旅遊……每次隨機出現，吃到就多認識我一點。',
   'about.why.3': '8-bit 音樂|預設是關的，想聽再打開。',
   'about.interests': '遊戲裡的能量球，都是我的興趣',
-  'about.whyEnd': '像素只點到為止，其餘保持簡單乾淨，讓文章當主角。',
   'cowork.minimize': '收合播放器',
   'cowork.expand': '🎵 播放器'
 }
@@ -120,10 +119,10 @@ const en: Record<keyof typeof zh, string> = {
   'about.role': 'Senior software engineer · Community manager · Author · Product Builder',
   'about.p1': "Hi, I'm Kyle, also known as Lao Mo. I'm a senior software engineer at a US security company, and the community manager of a subscription learning community for product people.",
   'about.p2': 'I love communities (often as the organizer), digital nomad life and reading, and I enjoy sharing what I learn and reflect on. I wrote a book on Web front-end performance (in Chinese) and have plenty of experience as a tech speaker.',
-  'about.helpTitle': 'Ways I can help',
-  'about.help.0': 'Career consulting, short or long term (50+ sessions so far)',
+  'about.helpTitle': 'My Services',
+  'about.help.0': 'Career consulting|Short or long term, 50+ sessions so far',
   'about.help.1': 'Freelance software projects',
-  'about.help.2': 'Software or AI consulting for solo founders and small businesses',
+  'about.help.2': 'Software or AI consulting|For solo founders and small businesses',
   'about.help.3': 'Book preview',
   'about.help.4': 'Programming lessons and tutoring',
   'about.help.5': 'Speaking invitations',
@@ -141,7 +140,6 @@ const en: Record<keyof typeof zh, string> = {
   'about.why.2': 'Interest pellets|guitar, dancing, reading, travel… they show up at random, and each one you eat tells you a bit more about me.',
   'about.why.3': '8-bit music|off by default, turn it on if you like.',
   'about.interests': 'The pellets in the game are all my interests',
-  'about.whyEnd': 'The pixels stay a light touch and the rest stays simple and clean, so the writing is the star.',
   'cowork.minimize': 'Hide player',
   'cowork.expand': '🎵 Player'
 }

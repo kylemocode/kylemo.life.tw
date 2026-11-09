@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Chomper } from '../components/Chomper'
 import { PixelIcon } from '../components/PixelIcon'
+import { PixelText } from '../components/PixelText'
 import { Reveal } from '../components/Reveal'
 import { INTEREST_ICONS, INTEREST_LABELS, SERVICE_ICONS } from '../data/pixelIcons'
 import { site } from '../data/site'
@@ -25,12 +26,24 @@ export function About() {
         <p>{t('about.p1')}</p>
         <p>{t('about.p2')}</p>
         <Reveal>
-          <h2 className="about-sub">{t('about.helpTitle')}</h2>
+          <h2 className="about-sub">
+            <PixelText text={t('about.helpTitle')} />
+          </h2>
           <ul className="about-cards">
             {HELP.map((k, i) => (
               <li key={k}>
                 <PixelIcon rows={SERVICE_ICONS[i]} size={4} />
-                <span>{t(k)}</span>
+                <span>
+                  {(() => {
+                    const [title, sub] = t(k).split('|')
+                    return (
+                      <>
+                        {title}
+                        {sub && <small>{sub}</small>}
+                      </>
+                    )
+                  })()}
+                </span>
               </li>
             ))}
           </ul>
@@ -40,7 +53,9 @@ export function About() {
         <Chomper />
 
         <Reveal>
-          <h2 className="about-sub">{t('about.blogTitle')}</h2>
+          <h2 className="about-sub">
+            <PixelText text={t('about.blogTitle')} />
+          </h2>
           <p>{t('about.blogIntro')}</p>
           <ul className="about-help">
             {(Object.keys(tagLabels) as (keyof typeof BLOG)[]).map((k) => (
@@ -56,7 +71,9 @@ export function About() {
         </Reveal>
 
         <Reveal>
-          <h2 className="about-sub">{t('about.whyTitle')}</h2>
+          <h2 className="about-sub">
+            <PixelText text={t('about.whyTitle')} />
+          </h2>
           <p>{t('about.whyIntro')}</p>
           <ul className="about-help">
             {WHY.map((k) => {
@@ -78,7 +95,6 @@ export function About() {
               </li>
             ))}
           </ul>
-          <p>{t('about.whyEnd')}</p>
         </Reveal>
       </div>
     </section>
