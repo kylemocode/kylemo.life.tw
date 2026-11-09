@@ -47,7 +47,6 @@ export function About() {
               </li>
             ))}
           </ul>
-          <p>{t('about.cta')}</p>
         </Reveal>
 
         <Chomper />
