@@ -10,6 +10,7 @@ import { useLang } from '../i18n'
 
 const HELP = ['about.help.0', 'about.help.1', 'about.help.2', 'about.help.3', 'about.help.4', 'about.help.5', 'about.help.6'] as const
 const WHY = ['about.why.0', 'about.why.1', 'about.why.2', 'about.why.3'] as const
+const BOOK_URL = 'https://www.books.com.tw/products/0011038343'
 const BLOG = { life: 'about.blog.life', career: 'about.blog.career', nomad: 'about.blog.nomad' } as const
 
 export function About() {
@@ -24,7 +25,19 @@ export function About() {
         <h1>{t('page.about')}</h1>
         <p className="meta">{t('about.role')}</p>
         <p>{t('about.p1')}</p>
-        <p className="about-lines">{t('about.p2')}</p>
+        <p className="about-lines">
+          {t('about.p2')
+            .split(/(《[^》]+》)/)
+            .map((part, i) =>
+              part.startsWith('《') ? (
+                <a key={i} href={BOOK_URL} target="_blank" rel="noopener noreferrer">
+                  {part}
+                </a>
+              ) : (
+                part
+              ),
+            )}
+        </p>
         <Reveal>
           <h2 className="about-sub">
             <PixelText text={t('about.helpTitle')} />
