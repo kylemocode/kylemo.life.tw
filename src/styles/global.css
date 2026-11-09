@@ -902,6 +902,98 @@ button.tag:hover {
 .about-text > .reveal {
   margin-top: 3rem;
 }
+/* 「我可以幫上的忙」：像素圖示小卡 */
+.about-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 10px;
+  margin: 0 0 1.5rem;
+  padding: 0;
+  list-style: none;
+}
+.about-cards li {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  line-height: 1.5;
+}
+.about-cards li:hover {
+  border-color: var(--accent);
+}
+.about-cards svg,
+.about-interests svg {
+  flex: none;
+  color: var(--accent);
+}
+.about-cards li:hover svg,
+.about-interests li:hover svg,
+.about-interests li:focus-visible svg {
+  animation: icon-hop 0.4s var(--ease-out);
+}
+@keyframes icon-hop {
+  40% { transform: translateY(-5px); }
+}
+/* 興趣圖示列：滑過或點一下會顯示名字 */
+.about-caption {
+  margin: 1.25rem 0 0.75rem;
+  font-size: 14px;
+  color: var(--muted);
+}
+.about-interests {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px 20px;
+  margin: 0 0 1.5rem;
+  padding: 0;
+  list-style: none;
+}
+.about-interests li {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  outline: none;
+}
+.about-interests li::after {
+  content: attr(data-label);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  translate: -50% 0;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--text);
+  color: var(--bg);
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+  z-index: 2;
+}
+.about-interests li:hover::after,
+.about-interests li:focus-visible::after {
+  opacity: 1;
+}
+.about-text .reveal .about-interests li {
+  transform: scale(0.4);
+}
+.about-text .reveal.in .about-interests li {
+  transform: none;
+}
+.about-text .reveal.in li:nth-child(8) { transition-delay: 0.71s; }
+.about-text .reveal.in li:nth-child(9) { transition-delay: 0.79s; }
+@media (prefers-reduced-motion: reduce) {
+  .about-cards li:hover svg,
+  .about-interests li:hover svg {
+    animation: none;
+  }
+}
 /* 條列項目在區塊浮現後，一項一項滑進來 */
 .about-text .reveal li {
   opacity: 0;

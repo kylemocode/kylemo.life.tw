@@ -1,5 +1,8 @@
 import { Link } from 'react-router-dom'
+import { Chomper } from '../components/Chomper'
+import { PixelIcon } from '../components/PixelIcon'
 import { Reveal } from '../components/Reveal'
+import { INTEREST_ICONS, INTEREST_LABELS, SERVICE_ICONS } from '../data/pixelIcons'
 import { site } from '../data/site'
 import { tagLabel, tagLabels } from '../data/tags'
 import { useLang } from '../i18n'
@@ -23,13 +26,18 @@ export function About() {
         <p>{t('about.p2')}</p>
         <Reveal>
           <h2 className="about-sub">{t('about.helpTitle')}</h2>
-          <ul className="about-help">
-            {HELP.map((k) => (
-              <li key={k}>{t(k)}</li>
+          <ul className="about-cards">
+            {HELP.map((k, i) => (
+              <li key={k}>
+                <PixelIcon rows={SERVICE_ICONS[i]} size={4} />
+                <span>{t(k)}</span>
+              </li>
             ))}
           </ul>
           <p>{t('about.cta')}</p>
         </Reveal>
+
+        <Chomper />
 
         <Reveal>
           <h2 className="about-sub">{t('about.blogTitle')}</h2>
@@ -61,6 +69,14 @@ export function About() {
                 </li>
               )
             })}
+          </ul>
+          <p className="about-caption">{t('about.interests')}</p>
+          <ul className="about-interests">
+            {INTEREST_ICONS.map((rows, i) => (
+              <li key={INTEREST_LABELS[i]} data-label={INTEREST_LABELS[i]} tabIndex={0} aria-label={INTEREST_LABELS[i]}>
+                <PixelIcon rows={rows} size={4} />
+              </li>
+            ))}
           </ul>
           <p>{t('about.whyEnd')}</p>
         </Reveal>

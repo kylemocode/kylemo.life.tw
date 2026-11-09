@@ -68,6 +68,7 @@ const zh = {
   'about.why.1': '迷宮拼出名字|牆排成 KYLE 和 MO，讓你知道這是誰的遊樂場。',
   'about.why.2': '興趣能量球|吉他、跳舞、閱讀、旅遊……每次隨機出現，吃到就多認識我一點。',
   'about.why.3': '8-bit 音樂|預設是關的，想聽再打開。',
+  'about.interests': '遊戲裡的能量球，都是我的興趣',
   'about.whyEnd': '像素只點到為止，其餘保持簡單乾淨，讓文章當主角。',
   'cowork.minimize': '收合播放器',
   'cowork.expand': '🎵 播放器'
@@ -139,6 +140,7 @@ const en: Record<keyof typeof zh, string> = {
   'about.why.1': 'A maze that spells my name|the walls form KYLE and MO, so you know whose playground this is.',
   'about.why.2': 'Interest pellets|guitar, dancing, reading, travel… they show up at random, and each one you eat tells you a bit more about me.',
   'about.why.3': '8-bit music|off by default, turn it on if you like.',
+  'about.interests': 'The pellets in the game are all my interests',
   'about.whyEnd': 'The pixels stay a light touch and the rest stays simple and clean, so the writing is the star.',
   'cowork.minimize': 'Hide player',
   'cowork.expand': '🎵 Player'
