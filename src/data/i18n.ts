@@ -117,7 +117,7 @@ const en: Record<keyof typeof zh, string> = {
   'cowork.loading': 'Loading…',
   'about.photoAlt': 'Portrait of {name}',
   'about.role': 'Senior software engineer · Community manager · Author · Product Builder',
-  'about.p1': "Hi, I'm Kyle, also known as Lao Mo. I'm a senior software engineer at a US security company, and the community manager of a subscription learning community for product people.",
+  'about.p1': "Hi, I'm Kyle, also known as Old Mo. I'm a senior software engineer at a US security company, and the community manager of a subscription learning community for product people.",
   'about.p2': 'I love communities (often as the organizer), digital nomad life and reading, and I enjoy sharing what I learn and reflect on. I wrote a book on Web front-end performance (in Chinese) and have plenty of experience as a tech speaker.',
   'about.helpTitle': 'My Services',
   'about.help.0': 'Career consulting|Short or long term, 50+ sessions so far',
