@@ -48,7 +48,7 @@ const ICONS = [
   ['..####..', '#.####.#', '##.##.##', '#.####.#', '..####..', '...##...'], // 喜歡狗
 ]
 // 吃到時浮出的字固定用英文（兩種語言都一樣，比較好看）
-const PELLET_LABELS = ['Guitar', 'Dancing', 'Reading', 'Making friends', 'Watching NBA', 'Movies', 'Travel', 'Cafe hopping', 'Dogs']
+const PELLET_LABELS = ['Guitar', 'Dancing', 'Reading', 'Making friends', 'Watching NBA', 'Watching Movie', 'Travel', 'Cafe Hopping', 'Dogs']
 const GHOST_COLORS = ['#d9534f', '#e59ab5', '#4fb0c6']
 
 type Ent = { x: number; y: number; dx: number; dy: number }
