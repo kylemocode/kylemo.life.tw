@@ -61,12 +61,13 @@ const zh = {
   'about.quote': '人生只能倒過來理解，但我們只能向前而活。',
   'about.quoteBy': '— 齊克果',
   'about.whyTitle': '部落格風格為什麼這麼設計？',
-  'about.whyIntro': '人生像一座遊樂場，有路線、有關卡，也常常繞路。所以我讓首頁真的能玩：',
+  'about.whyIntro': '我一直是個很老派的人，喜歡 Old School 的音樂、電影，也喜歡搜集古物。回想過去最珍惜的東西，是一台阿公送我的橘色 GameBoy。\n老實說，我還是很懷念搜集卡帶的時代，對像素風格的古老遊戲也情有獨鍾。\n\n所以我決定把網站的風格定調為極簡，再加上一點像素遊戲的味道，也呼應我心中「部落格是透過文字展現的人生遊樂場」的想法。',
   'about.why.0': '吃豆人|一進來就是一場自己在玩的遊戲，你也可以接手。',
   'about.why.1': '迷宮拼出名字|牆排成 KYLE 和 MO，讓你知道這是誰的遊樂場。',
   'about.why.2': '興趣能量球|吉他、跳舞、閱讀、旅遊……每次隨機出現，吃到就多認識我一點。',
-  'about.why.3': '8-bit 音樂|預設是關的，想聽再打開。',
-  'about.interests': '遊戲裡的能量球，都是我的興趣',
+  'about.why.3': '俄羅斯方塊|Footer 的方塊，是我以前也很喜歡的遊戲。',
+  'about.why.4': '8-bit 音樂|預設是關的，想聽再打開。',
+  'about.interests': '在首頁的吃豆人遊戲中，能量球使用不同圖案呈現，它們其實代表我的各種興趣，我希望未來這個清單會持續增加！',
   'cowork.minimize': '收合播放器',
   'cowork.expand': '🎵 播放器'
 }
@@ -130,12 +131,13 @@ const en: Record<keyof typeof zh, string> = {
   'about.quote': 'Life can only be understood backwards; but it must be lived forwards.',
   'about.quoteBy': '— Søren Kierkegaard',
   'about.whyTitle': 'Why is the blog styled this way?',
-  'about.whyIntro': 'Life feels like a playground: there are routes and levels, and plenty of detours. So the home page is actually playable:',
+  'about.whyIntro': 'I\'ve always been an old-school kind of person. I love old-school music and movies, and I collect antiques. Looking back, the thing I treasured most was an orange GameBoy my grandfather gave me.\nHonestly, I still miss the days of collecting game cartridges, and I have a soft spot for old pixel-style games.\n\nSo I decided to keep the site minimal and add a touch of pixel-game flavor, echoing my idea of a blog as a playground for life, built through writing.',
   'about.why.0': 'Pac-Man|a game that plays itself when you arrive, and you can take over.',
   'about.why.1': 'A maze that spells my name|the walls form KYLE and MO, so you know whose playground this is.',
   'about.why.2': 'Interest pellets|guitar, dancing, reading, travel… they show up at random, and each one you eat tells you a bit more about me.',
-  'about.why.3': '8-bit music|off by default, turn it on if you like.',
-  'about.interests': 'The pellets in the game are all my interests',
+  'about.why.3': 'Tetris|the blocks in the footer, another game I loved growing up.',
+  'about.why.4': '8-bit music|off by default, turn it on if you like.',
+  'about.interests': 'In the Pac-Man game on the home page, the pellets come in different pictures. They stand for my many interests, and I hope this list keeps growing!',
   'cowork.minimize': 'Hide player',
   'cowork.expand': '🎵 Player'
 }

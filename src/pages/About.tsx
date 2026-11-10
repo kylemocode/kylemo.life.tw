@@ -7,7 +7,7 @@ import { site } from '../data/site'
 import { useLang } from '../i18n'
 
 const HELP = ['about.help.0', 'about.help.1', 'about.help.2', 'about.help.3', 'about.help.4', 'about.help.5', 'about.help.6'] as const
-const WHY = ['about.why.0', 'about.why.1', 'about.why.2', 'about.why.3'] as const
+const WHY = ['about.why.0', 'about.why.1', 'about.why.2', 'about.why.3', 'about.why.4'] as const
 const LINKS: Record<string, string> = {
   Medium: 'https://medium.com/@oldmo860617',
   IG: 'https://www.instagram.com/kylemo.life.tw/',
@@ -85,7 +85,7 @@ export function About() {
           <h2 className="about-sub">
             <PixelText text={t('about.whyTitle')} />
           </h2>
-          <p>{t('about.whyIntro')}</p>
+          <p className="about-lines">{t('about.whyIntro')}</p>
           <ul className="about-help">
             {WHY.map((k) => {
               const [label, desc] = t(k).split('|')
