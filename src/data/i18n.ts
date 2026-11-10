@@ -62,7 +62,7 @@ const zh = {
   'about.quote': '人生只能倒過來理解，但我們只能向前而活。',
   'about.quoteBy': '— 齊克果',
   'about.whyTitle': '部落格風格為什麼這麼設計？',
-  'about.whyIntro': '我一直是個很老派的人，喜歡 Old School 的音樂、電影，也喜歡搜集古物。回想過去最珍惜的東西，是一台阿公送我的橘色 GameBoy。\n老實說，我還是很懷念搜集卡帶的時代，對像素風格的古老遊戲也情有獨鍾。\n\n所以我決定把網站的風格定調為極簡，再加上一點像素遊戲的味道，也呼應我心中「部落格是透過文字展現的人生遊樂場」的想法。',
+  'about.whyIntro': '我一直是個很老派的人，喜歡 Old School 的音樂、電影，也喜歡搜集古物。回想過去最珍惜的東西，是一台阿公送我的橘色 GameBoy。\n老實說，我還是很懷念搜集卡帶的時代，對像素風格的古老遊戲也情有獨鍾。\n\n所以我決定把網站的風格定調為極簡，再加上一點像素遊戲的元素，也呼應我心中「部落格是透過文字展現的人生遊樂場」的想法。',
   'about.interests': '在首頁的吃豆人遊戲中，能量球使用不同圖案呈現，它們其實代表我的各種興趣，我希望未來這個清單會持續增加！',
   'cowork.minimize': '收合播放器',
   'cowork.expand': '🎵 播放器'
@@ -128,7 +128,7 @@ const en: Record<keyof typeof zh, string> = {
   'about.quote': 'Life can only be understood backwards; but it must be lived forwards.',
   'about.quoteBy': '— Søren Kierkegaard',
   'about.whyTitle': 'Why is the blog styled this way?',
-  'about.whyIntro': 'I\'ve always been an old-school kind of person. I love old-school music and movies, and I collect antiques. Looking back, the thing I treasured most was an orange GameBoy my grandfather gave me.\nHonestly, I still miss the days of collecting game cartridges, and I have a soft spot for old pixel-style games.\n\nSo I decided to keep the site minimal and add a touch of pixel-game flavor, echoing my idea of a blog as a playground for life, built through writing.',
+  'about.whyIntro': 'I\'ve always been an old-school kind of person. I love old-school music and movies, and I collect antiques. Looking back, the thing I treasured most was an orange GameBoy my grandfather gave me.\nHonestly, I still miss the days of collecting game cartridges, and I have a soft spot for old pixel-style games.\n\nSo I decided to keep the site minimal and add a touch of pixel-game elements, echoing my idea of a blog as a playground for life, built through writing.',
   'about.interests': 'In the Pac-Man game on the home page, the pellets come in different pictures. They stand for my many interests, and I hope this list keeps growing!',
   'cowork.minimize': 'Hide player',
   'cowork.expand': '🎵 Player'
