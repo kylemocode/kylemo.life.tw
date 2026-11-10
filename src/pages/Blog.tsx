@@ -1,4 +1,5 @@
 import { useSearchParams } from 'react-router-dom'
+import { Seo } from '../components/Seo'
 import { Chomper } from '../components/Chomper'
 import { allTags, filterPosts, sortedPosts } from '../data/posts'
 import { tagLabel } from '../data/tags'
@@ -22,6 +23,7 @@ export function Blog() {
 
   return (
     <section className="page">
+      <Seo title={t('nav.posts')} description={t('seo.blog')} />
       <h1>{t('blog.title')}</h1>
       <p className="meta">
         {query || tag ? t('blog.found', { n: shown.length, total: sortedPosts.length }) : t('blog.count', { n: sortedPosts.length })}

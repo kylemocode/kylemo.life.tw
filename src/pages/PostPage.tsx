@@ -1,9 +1,9 @@
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import { marked } from 'marked'
 import { Link, useParams } from 'react-router-dom'
 import { formatDate, localizePost, posts } from '../data/posts'
 import { tagLabel } from '../data/tags'
-import { site } from '../data/site'
+import { Seo } from '../components/Seo'
 import { MagneticLink } from '../components/MagneticLink'
 import { NotFound } from './NotFound'
 import { useLang } from '../i18n'
@@ -14,19 +14,13 @@ export function PostPage() {
   const found = posts.find((p) => p.slug === slug)
   const post = found && localizePost(found, lang)
 
-  useEffect(() => {
-    if (post) document.title = `${post.title} · ${site.title}`
-    return () => {
-      document.title = site.title
-    }
-  }, [post])
-
   const html = useMemo(() => (post ? (marked.parse(post.body, { async: false }) as string) : ''), [post])
 
   if (!post) return <NotFound />
 
   return (
     <article className="page">
+      <Seo title={post.title} description={post.description} />
       <h1>{post.title}</h1>
       <p className="meta">
         <time dateTime={post.date}>{formatDate(post.date, lang)}</time>

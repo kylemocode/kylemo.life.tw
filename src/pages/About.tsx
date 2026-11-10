@@ -1,3 +1,4 @@
+import { Seo } from '../components/Seo'
 import { Chomper } from '../components/Chomper'
 import { PixelIcon } from '../components/PixelIcon'
 import { PixelText } from '../components/PixelText'
@@ -31,6 +32,7 @@ export function About() {
   const { t } = useLang()
   return (
     <section className="page about">
+      <Seo title={t('page.about')} description={t('seo.about')} />
       <figure className="avatar">
         <img src={`${import.meta.env.BASE_URL}avatar.png`} alt={t('about.photoAlt', { name: site.author })} width={500} height={506} />
       </figure>
