@@ -1,9 +1,9 @@
 // 網站的基本設定：改這裡就能換掉標題、副標、社群連結
 
 export const site = {
-  name: 'kylemo.me',
+  name: 'kylemo.life.tw',
   author: 'Kyle',
-  title: 'kylemo.me', // 瀏覽器分頁標題
+  title: 'kylemo.life.tw', // 瀏覽器分頁標題
   handle: '@kylemo.life.tw', // 頁尾顯示
   // 導覽列的 label 是 data/i18n.ts 的 key；副標與打字機關鍵詞也在那邊（tagline.*）
   // 開始寫作的日期，用來算「持續寫作 N 天」

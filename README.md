@@ -1,4 +1,4 @@
-# kylemo.me
+# kylemo.life.tw
 
 Kyle's personal blog, built with React 19, Vite and TypeScript.
 
