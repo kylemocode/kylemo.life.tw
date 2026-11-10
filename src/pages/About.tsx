@@ -6,7 +6,7 @@ import { INTEREST_ICONS, INTEREST_LABELS, SERVICE_ICONS } from '../data/pixelIco
 import { site } from '../data/site'
 import { useLang } from '../i18n'
 
-const HELP = ['about.help.0', 'about.help.1', 'about.help.2', 'about.help.3', 'about.help.4', 'about.help.5', 'about.help.6'] as const
+const HELP = ['about.help.0', 'about.help.1', 'about.help.2', 'about.help.3', 'about.help.4', 'about.help.5', 'about.help.6', 'about.help.7'] as const
 const WHY = ['about.why.0', 'about.why.1', 'about.why.2', 'about.why.3', 'about.why.4'] as const
 const LINKS: Record<string, string> = {
   Medium: 'https://medium.com/@oldmo860617',
