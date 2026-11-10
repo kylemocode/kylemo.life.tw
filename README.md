@@ -1,4 +1,4 @@
-# kylemo.life.tw
+# kylemo.me
 
 Kyle's personal blog, built with React 19, Vite and TypeScript.
 
@@ -77,7 +77,7 @@ public/             Static files: icons, cursors, manifest, service worker
 
 ### Custom domain
 
-In the Vercel project, go to Settings → Domains and add `kylemo.life.tw`. Then add the DNS record Vercel shows you at your domain registrar (a CNAME for subdomains, an A record for the apex domain).
+In the Vercel project, go to Settings → Domains and add `kylemo.me`. Then add the DNS record Vercel shows you at your domain registrar (a CNAME for subdomains, an A record for the apex domain).
 
 The manifest and service worker use absolute paths (`/`), so the site must be served from the root of the domain.
 
