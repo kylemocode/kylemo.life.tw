@@ -15,7 +15,7 @@ export const INTEREST_ICONS: string[][] = [
 ]
 
 // 吃到時浮出的字固定用英文（兩種語言都一樣，比較好看）
-export const INTEREST_LABELS: string[] = ['Guitar', 'Dancing', 'Reading', 'Making Friends', 'Watching NBA', 'Watching Movie', 'Travel', 'Cafe Hopping', 'Dogs']
+export const INTEREST_LABELS: string[] = ['Guitar', 'Dancing', 'Reading', 'Making Friends', 'Watching NBA', 'Watching Movie', 'Travel', 'Cafe Hopping', 'Dog Lover']
 
 // 關於頁「我可以幫上的忙」每一項的圖示（順序和 about.help.0~6 一樣）
 export const SERVICE_ICONS: string[][] = [
