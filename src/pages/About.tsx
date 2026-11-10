@@ -28,7 +28,7 @@ function linkify(text: string) {
 }
 
 export function About() {
-  const { t, lang } = useLang()
+  const { t } = useLang()
   return (
     <section className="page about">
       <figure className="avatar">
