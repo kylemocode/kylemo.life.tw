@@ -68,7 +68,12 @@ export function About() {
           <h2 className="about-sub">
             <PixelText text={t('about.blogTitle')} />
           </h2>
-          <p>{t('about.blogIntro')}</p>
+          <p className="about-lines">{t('about.blogIntro')}</p>
+          <p className="about-links">
+            <a href="https://medium.com/@oldmo860617" target="_blank" rel="noopener noreferrer">Medium ↗</a>
+            {' · '}
+            <a href="https://www.instagram.com/kylemo.life.tw/" target="_blank" rel="noopener noreferrer">Instagram ↗</a>
+          </p>
           <ul className="about-help">
             {(Object.keys(tagLabels) as (keyof typeof BLOG)[]).map((k) => (
               <li key={k}>
@@ -80,6 +85,13 @@ export function About() {
               </li>
             ))}
           </ul>
+        </Reveal>
+
+        <Reveal>
+          <figure className="about-quote">
+            <blockquote>{t('about.quote')}</blockquote>
+            <figcaption>{t('about.quoteBy')}</figcaption>
+          </figure>
         </Reveal>
 
         <Reveal>
