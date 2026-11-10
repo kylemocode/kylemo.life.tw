@@ -1,17 +1,32 @@
-import { Link } from 'react-router-dom'
 import { Chomper } from '../components/Chomper'
 import { PixelIcon } from '../components/PixelIcon'
 import { PixelText } from '../components/PixelText'
 import { Reveal } from '../components/Reveal'
 import { INTEREST_ICONS, INTEREST_LABELS, SERVICE_ICONS } from '../data/pixelIcons'
 import { site } from '../data/site'
-import { tagLabel, tagLabels } from '../data/tags'
 import { useLang } from '../i18n'
 
 const HELP = ['about.help.0', 'about.help.1', 'about.help.2', 'about.help.3', 'about.help.4', 'about.help.5', 'about.help.6'] as const
 const WHY = ['about.why.0', 'about.why.1', 'about.why.2', 'about.why.3'] as const
+const LINKS: Record<string, string> = {
+  Medium: 'https://medium.com/@oldmo860617',
+  IG: 'https://www.instagram.com/kylemo.life.tw/',
+}
 const BOOK_URL = 'https://www.books.com.tw/products/0011038343'
-const BLOG = { life: 'about.blog.life', career: 'about.blog.career', nomad: 'about.blog.nomad' } as const
+
+// 文字裡的書名、Medium、IG 自動加上連結
+function linkify(text: string) {
+  return text.split(/(《[^》]+》|Medium|IG)/).map((part, i) => {
+    const href = part.startsWith('《') ? BOOK_URL : LINKS[part]
+    return href ? (
+      <a key={i} href={href} target="_blank" rel="noopener noreferrer">
+        {part}
+      </a>
+    ) : (
+      part
+    )
+  })
+}
 
 export function About() {
   const { t, lang } = useLang()
@@ -25,19 +40,14 @@ export function About() {
         <h1>{t('page.about')}</h1>
         <p className="meta">{t('about.role')}</p>
         <p>{t('about.p1')}</p>
-        <p className="about-lines">
-          {t('about.p2')
-            .split(/(《[^》]+》)/)
-            .map((part, i) =>
-              part.startsWith('《') ? (
-                <a key={i} href={BOOK_URL} target="_blank" rel="noopener noreferrer">
-                  {part}
-                </a>
-              ) : (
-                part
-              ),
-            )}
-        </p>
+        <p className="about-lines">{linkify(t('about.p2'))}</p>
+        <Reveal>
+          <figure className="about-quote">
+            <blockquote>{t('about.quote')}</blockquote>
+            <figcaption>{t('about.quoteBy')}</figcaption>
+          </figure>
+        </Reveal>
+
         <Reveal>
           <h2 className="about-sub">
             <PixelText text={t('about.helpTitle')} />
@@ -68,30 +78,7 @@ export function About() {
           <h2 className="about-sub">
             <PixelText text={t('about.blogTitle')} />
           </h2>
-          <p className="about-lines">{t('about.blogIntro')}</p>
-          <p className="about-links">
-            <a href="https://medium.com/@oldmo860617" target="_blank" rel="noopener noreferrer">Medium ↗</a>
-            {' · '}
-            <a href="https://www.instagram.com/kylemo.life.tw/" target="_blank" rel="noopener noreferrer">Instagram ↗</a>
-          </p>
-          <ul className="about-help">
-            {(Object.keys(tagLabels) as (keyof typeof BLOG)[]).map((k) => (
-              <li key={k}>
-                <Link to={`/blog?tag=${k}`}>
-                  <strong>{tagLabel(k, lang)}</strong>
-                </Link>
-                {sep}
-                {t(BLOG[k])}
-              </li>
-            ))}
-          </ul>
-        </Reveal>
-
-        <Reveal>
-          <figure className="about-quote">
-            <blockquote>{t('about.quote')}</blockquote>
-            <figcaption>{t('about.quoteBy')}</figcaption>
-          </figure>
+          <p className="about-lines">{linkify(t('about.blogIntro'))}</p>
         </Reveal>
 
         <Reveal>
