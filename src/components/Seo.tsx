@@ -5,7 +5,7 @@ import { site } from '../data/site'
 // 每個頁面更新分頁標題、description、分享卡片（og）和 canonical。
 // 搜尋引擎（Google）會執行 JS 所以看得到；LINE、FB 這類只看原始 HTML，吃的是 index.html 裡的預設值。
 const ORIGIN = 'https://kylemo.me'
-const DEFAULT_TITLE = 'Kyle Mo 老莫 | kylemo.life.tw'
+const DEFAULT_TITLE = '老莫 Kyle Mo | kylemo.life.tw'
 
 function setMeta(selector: string, attr: 'name' | 'property', key: string, content: string) {
   let el = document.head.querySelector<HTMLMetaElement>(selector)
