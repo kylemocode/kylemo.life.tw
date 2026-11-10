@@ -392,8 +392,11 @@ export function PacGame() {
       const c = css()
       ctx.clearRect(0, 0, COLS * CELL, ROWS * CELL)
       // 牆：只畫「牆與空地交界」的邊線，變成輪廓迷宮
-      ctx.strokeStyle = c.muted
-      ctx.globalAlpha = 0.55
+      // 淺色模式牆壁用深色、較不透明，不然在白底上太淡
+      const light = document.documentElement.dataset.theme === 'light'
+      const wallColor = light ? c.text : c.muted
+      ctx.strokeStyle = wallColor
+      ctx.globalAlpha = light ? 0.72 : 0.55
       ctx.lineWidth = 2
       ctx.lineCap = 'square'
       ctx.beginPath()
@@ -406,7 +409,7 @@ export function PacGame() {
           const py = y * CELL
           // 排成名字的牆畫成實心方塊，才讀得出字；其餘的牆只畫與空地交界的邊線（輪廓）
           if (ch === 'X') {
-            ctx.fillStyle = c.muted
+            ctx.fillStyle = wallColor
             ctx.fillRect(px + 3, py + 3, CELL - 6, CELL - 6)
             continue
           }
@@ -418,7 +421,7 @@ export function PacGame() {
           if (open(x + 1, y)) { ctx.moveTo(px + CELL - i, py + i); ctx.lineTo(px + CELL - i, py + CELL - i) }
         }
       ctx.stroke()
-      if (layerColor !== c.muted) drawLayer(c.muted)
+      if (layerColor !== wallColor) drawLayer(wallColor)
       ctx.save()
       ctx.setTransform(1, 0, 0, 1, 0, 0)
       ctx.drawImage(layer, 0, 0)
