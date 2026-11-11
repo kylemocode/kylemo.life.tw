@@ -11,9 +11,12 @@ import { PostPage } from './pages/PostPage'
 const Workspace = lazy(() => import('./pages/Workspace').then((m) => ({ default: m.Workspace })))
 import { Preview } from './pages/Preview'
 import { NotFound } from './pages/NotFound'
+import { initAnalytics } from './analytics'
 
 // /preview 只在本機（localhost）開放，上線後網址會落到 404
 const isLocal = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname)
+
+initAnalytics()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

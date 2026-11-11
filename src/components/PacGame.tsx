@@ -1,3 +1,4 @@
+import { track } from '../analytics'
 import { useEffect, useRef, useState } from 'react'
 import { INTEREST_ICONS as ICONS, INTEREST_LABELS as PELLET_LABELS } from '../data/pixelIcons'
 import { useLang } from '../i18n'
@@ -237,6 +238,7 @@ export function PacGame() {
       lives--
       if (lives <= 0) {
         over = true
+        track('game_over', { score, level })
         try {
           best = Number(localStorage.getItem('pac-best')) || 0
           record = score > best
@@ -281,6 +283,7 @@ export function PacGame() {
           resetPositions()
           speedUp = Math.min(1.4, speedUp + 0.08)
           level++
+          track('game_level', { level })
           banner = 1.8
           sync()
         }
@@ -542,7 +545,10 @@ export function PacGame() {
     }
 
     const takeOver = (d: { dx: number; dy: number }) => {
-      if (demo || over) newGame(false)
+      if (demo || over) {
+        newGame(false)
+        track('game_start')
+      }
       want = d
       // 想反方向走時，立刻掉頭，不用等到下一個路口
       if (pac.dx === -d.dx && pac.dy === -d.dy && (pac.dx || pac.dy)) {

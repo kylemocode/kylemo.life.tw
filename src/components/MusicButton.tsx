@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { track } from '../analytics'
 import { music } from '../audio/chiptune'
 import { useLang } from '../i18n'
 
@@ -17,6 +18,7 @@ export function MusicButton() {
     if (on) music.stop()
     else music.start()
     setOn(!on)
+    track('music_toggle', { on: !on })
   }
 
   const label = t(on ? 'music.off' : 'music.on')
