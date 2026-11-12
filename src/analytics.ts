@@ -4,7 +4,21 @@ import posthog from 'posthog-js'
 // 沒設定、或在本機（localhost）開發時完全不送資料。
 const key = import.meta.env.VITE_POSTHOG_KEY as string | undefined
 const isLocal = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname)
-const enabled = Boolean(key) && !isLocal
+
+// 排除自己：開一次 https://kylemo.me/?notrack 之後，這個瀏覽器就不再送資料；?track 可恢復
+const FLAG = 'kylemo_notrack'
+function optedOut() {
+  try {
+    const q = new URLSearchParams(location.search)
+    if (q.has('notrack')) localStorage.setItem(FLAG, '1')
+    if (q.has('track')) localStorage.removeItem(FLAG)
+    return localStorage.getItem(FLAG) === '1'
+  } catch {
+    return false
+  }
+}
+
+const enabled = Boolean(key) && !isLocal && !optedOut()
 
 export function initAnalytics() {
   if (!enabled) return
