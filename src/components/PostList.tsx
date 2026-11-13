@@ -3,7 +3,7 @@ import { tagLabel } from '../data/tags'
 import { formatDate, localizePost, type Post } from '../data/posts'
 import { useLang } from '../i18n'
 
-export function PostList({ posts: raw }: { posts: Post[] }) {
+export function PostList({ posts: raw, base = '/blog' }: { posts: Post[]; base?: string }) {
   const { lang, t } = useLang()
   const posts = raw.map((p) => localizePost(p, lang))
   if (posts.length === 0) {
@@ -14,7 +14,7 @@ export function PostList({ posts: raw }: { posts: Post[] }) {
     <ol className="post-list">
       {posts.map((post) => (
         <li key={post.slug}>
-          <Link to={`/blog/${post.slug}`}>
+          <Link to={`${base}/${post.slug}`}>
             <h3>
               <span className="title">{post.title}</span>
             </h3>

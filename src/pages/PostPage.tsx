@@ -1,17 +1,17 @@
 import { useMemo } from 'react'
 import { marked } from 'marked'
 import { Link, useParams } from 'react-router-dom'
-import { formatDate, localizePost, posts } from '../data/posts'
+import { drafts, formatDate, localizePost, posts } from '../data/posts'
 import { tagLabel } from '../data/tags'
 import { Seo } from '../components/Seo'
 import { MagneticLink } from '../components/MagneticLink'
 import { NotFound } from './NotFound'
 import { useLang } from '../i18n'
 
-export function PostPage() {
+export function PostPage({ draft = false }: { draft?: boolean }) {
   const { slug } = useParams()
   const { lang, t } = useLang()
-  const found = posts.find((p) => p.slug === slug)
+  const found = (draft ? drafts : posts).find((p) => p.slug === slug)
   const post = found && localizePost(found, lang)
 
   const html = useMemo(() => (post ? (marked.parse(post.body, { async: false }) as string) : ''), [post])
@@ -20,6 +20,7 @@ export function PostPage() {
 
   return (
     <article className="page">
+      {draft && <p className="meta">草稿預覽（只在本機看得到）</p>}
       <Seo title={post.title} description={post.description} />
       <h1>{post.title}</h1>
       <p className="meta">
@@ -36,8 +37,8 @@ export function PostPage() {
       )}
       <div className="prose" dangerouslySetInnerHTML={{ __html: html }} />
       <p className="post-back">
-        <MagneticLink to="/blog" small>
-          {t('post.back')}
+        <MagneticLink to={draft ? '/drafts' : '/blog'} small>
+          {draft ? '所有草稿' : t('post.back')}
         </MagneticLink>
       </p>
     </article>

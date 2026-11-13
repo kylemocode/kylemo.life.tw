@@ -9,11 +9,12 @@ import { About } from './pages/About'
 import { Blog } from './pages/Blog'
 import { PostPage } from './pages/PostPage'
 const Workspace = lazy(() => import('./pages/Workspace').then((m) => ({ default: m.Workspace })))
+import { Drafts } from './pages/Drafts'
 import { Preview } from './pages/Preview'
 import { NotFound } from './pages/NotFound'
 import { initAnalytics } from './analytics'
 
-// /preview 只在本機（localhost）開放，上線後網址會落到 404
+// /preview、/drafts 只在本機（localhost）開放，上線後網址會落到 404
 const isLocal = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname)
 
 initAnalytics()
@@ -28,6 +29,8 @@ createRoot(document.getElementById('root')!).render(
           <Route index element={<Home />} />
           <Route path="blog" element={<Blog />} />
           <Route path="blog/:slug" element={<PostPage />} />
+          {isLocal && <Route path="drafts" element={<Drafts />} />}
+          {isLocal && <Route path="drafts/:slug" element={<PostPage draft />} />}
           <Route
             path="workspace"
             element={

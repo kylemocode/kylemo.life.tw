@@ -43,30 +43,39 @@ function parseTags(v = '', slug = '') {
   return valid
 }
 
-const zh: Record<string, string> = {}
-const en: Record<string, string> = {}
-for (const [path, raw] of Object.entries(files)) {
-  const name = path.split('/').pop()!.replace(/\.md$/, '')
-  if (name.endsWith('.en')) en[name.slice(0, -3)] = raw
-  else zh[name] = raw
+// 草稿放 content/drafts/，只在本機開發時讀取（上線版本不會打包進去），網址是 /drafts
+const draftFiles = (import.meta.env.DEV
+  ? import.meta.glob('/content/drafts/*.md', { query: '?raw', import: 'default', eager: true })
+  : {}) as Record<string, string>
+
+function build(files: Record<string, string>): Post[] {
+  const zh: Record<string, string> = {}
+  const en: Record<string, string> = {}
+  for (const [path, raw] of Object.entries(files)) {
+    const name = path.split('/').pop()!.replace(/\.md$/, '')
+    if (name.endsWith('.en')) en[name.slice(0, -3)] = raw
+    else zh[name] = raw
+  }
+  return Object.entries(zh).map(([slug, raw]) => {
+    const { meta, body } = parse(raw)
+    const post: Post = {
+      slug,
+      title: meta.title || slug,
+      description: meta.description || '',
+      date: meta.date || '1970-01-01',
+      tags: parseTags(meta.tags, slug),
+      body,
+    }
+    if (en[slug]) {
+      const e = parse(en[slug])
+      post.en = { title: e.meta.title || post.title, description: e.meta.description || post.description, body: e.body }
+    }
+    return post
+  })
 }
 
-export const posts: Post[] = Object.entries(zh).map(([slug, raw]) => {
-  const { meta, body } = parse(raw)
-  const post: Post = {
-    slug,
-    title: meta.title || slug,
-    description: meta.description || '',
-    date: meta.date || '1970-01-01',
-    tags: parseTags(meta.tags, slug),
-    body,
-  }
-  if (en[slug]) {
-    const e = parse(en[slug])
-    post.en = { title: e.meta.title || post.title, description: e.meta.description || post.description, body: e.body }
-  }
-  return post
-})
+export const posts: Post[] = build(files)
+export const drafts: Post[] = build(draftFiles).sort((a, b) => b.date.localeCompare(a.date))
 
 export function localizePost(post: Post, lang: 'zh' | 'en'): Post {
   return lang === 'en' && post.en ? { ...post, ...post.en } : post
