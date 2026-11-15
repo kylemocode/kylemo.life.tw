@@ -52,7 +52,7 @@ function draftApi(): Plugin {
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
         const url = new URL(req.url ?? '/', 'http://local')
-        if (!url.pathname.startsWith('/__drafts') && !url.pathname.startsWith('/__publish') && url.pathname !== '/__image') return next()
+        if (!url.pathname.startsWith('/__drafts') && !url.pathname.startsWith('/__publish') && !url.pathname.startsWith('/__posts') && url.pathname !== '/__image') return next()
         const fail = (code: number, msg: string) => {
           res.statusCode = code
           res.end(msg)
@@ -70,6 +70,23 @@ function draftApi(): Plugin {
             }
             res.setHeader('Content-Type', 'application/json')
             return res.end(JSON.stringify(out))
+          }
+          if (url.pathname === '/__posts' && req.method === 'GET') {
+            const out: Record<string, string> = {}
+            if (existsSync('content/posts')) {
+              for (const f of readdirSync('content/posts')) {
+                if (f.endsWith('.md')) out[`/content/posts/${f}`] = readFileSync(`content/posts/${f}`, 'utf8')
+              }
+            }
+            res.setHeader('Content-Type', 'application/json')
+            return res.end(JSON.stringify(out))
+          }
+          // 直接修改已發佈的文章（只允許改已存在的檔，不會新增）
+          const edit = url.pathname.match(/^\/__posts\/([a-z0-9][a-z0-9-]*)$/)
+          if (edit && req.method === 'PUT') {
+            if (!existsSync(`content/posts/${edit[1]}.md`)) return fail(404, '找不到這篇已發佈的文章')
+            writeFileSync(`content/posts/${edit[1]}.md`, await readBody(req))
+            return res.end('ok')
           }
           const m = url.pathname.match(/^\/__drafts\/([a-z0-9][a-z0-9-]*)$/)
           if (m && req.method === 'PUT') {

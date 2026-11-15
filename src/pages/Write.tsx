@@ -6,8 +6,8 @@ import { Markdown } from 'tiptap-markdown'
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { Seo } from '../components/Seo'
-import { fetchDrafts, publishDraft, saveDraft, uploadImage } from '../data/drafts'
-import type { Post } from '../data/posts'
+import { fetchDrafts, fetchPublished, fetchRaw, publishDraft, saveDraft, savePost, uploadImage, type Source } from '../data/drafts'
+import { buildPosts, parse, type Post } from '../data/posts'
 import { tagLabels } from '../data/tags'
 
 // 圖片的對齊與大小都存在 Markdown 圖片的 title，例如 "align:center size:50"
@@ -167,6 +167,7 @@ function Toolbar({ editor, onImage }: { editor: Editor; onImage: () => void }) {
 export function Write() {
   const [params, setParams] = useSearchParams()
   const [list, setList] = useState<Post[]>([])
+  const [published, setPublished] = useState<Post[]>([])
   const [meta, setMeta] = useState<Meta>(emptyMeta)
   const [status, setStatus] = useState('')
   const [dirty, setDirty] = useState(false)
@@ -222,7 +223,11 @@ export function Write() {
     [editor],
   )
 
-  const refreshList = useCallback(() => fetchDrafts().then(setList), [])
+  const source: Source = params.get('from') === 'posts' ? 'posts' : 'drafts'
+  const refreshList = useCallback(() => {
+    void fetchPublished().then(setPublished)
+    return fetchDrafts().then(setList)
+  }, [])
   useEffect(() => {
     void refreshList()
   }, [refreshList])
@@ -244,11 +249,14 @@ export function Write() {
       loaded.current = true
       return
     }
-    void fetchDrafts().then((all) => {
+    void fetchRaw(source).then((files) => {
       if (stale || editor.isDestroyed) return
+      const all = buildPosts(files)
       const d = all.find((p) => p.slug === slugParam)
       if (d) {
-        setMeta({ slug: d.slug, title: d.title, description: d.description, date: d.date, tags: d.tags })
+        const raw = files[`/content/${source}/${d.slug}.md`] ?? ''
+        // 摘要用檔案裡寫的原值（留空就維持留空），不要把自動產生的摘要寫回檔案
+        setMeta({ slug: d.slug, title: d.title, description: parse(raw).meta.description ?? '', date: d.date, tags: d.tags })
         editor.commands.setContent(d.body)
       }
       setDirty(false)
@@ -258,7 +266,7 @@ export function Write() {
     return () => {
       stale = true
     }
-  }, [slugParam, editor])
+  }, [slugParam, source, editor])
 
   const save = useCallback(async () => {
     const m = metaRef.current
@@ -268,7 +276,7 @@ export function Write() {
     }
     try {
       const md = (editor.storage as unknown as { markdown: { getMarkdown: () => string } }).markdown.getMarkdown()
-      await saveDraft(m.slug, toMarkdown(m, md))
+      await (source === 'posts' ? savePost : saveDraft)(m.slug, toMarkdown(m, md))
       setDirty(false)
       setStatus(`已儲存 ${new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })}`)
       void refreshList()
@@ -279,7 +287,7 @@ export function Write() {
     } catch {
       setStatus('儲存失敗（dev server 有開著嗎？）')
     }
-  }, [editor, refreshList, setParams, slugParam])
+  }, [editor, refreshList, setParams, slugParam, source])
 
   // 自動暫存：停筆 1.5 秒後存檔
   useEffect(() => {
@@ -316,10 +324,10 @@ export function Write() {
   }
   const toggleTag = (k: string) => set({ tags: meta.tags.includes(k) ? meta.tags.filter((t) => t !== k) : [...meta.tags, k] })
 
-  const exists = slugOk(meta.slug) && list.some((p) => p.slug === meta.slug)
+  const exists = slugOk(meta.slug) && (source === 'posts' ? published : list).some((p) => p.slug === meta.slug)
 
   const publish = async () => {
-    if (!exists) return
+    if (!exists || source === 'posts') return
     if (!window.confirm(`發布「${meta.title || meta.slug}」？\n檔案會從 content/drafts/ 移到 content/posts/，之後 git push 就會上線。`)) return
     await save()
     try {
@@ -338,14 +346,14 @@ export function Write() {
       <Seo title="寫作" noindex />
 
       <div className="write-top">
-        <span className="write-status">{status || '自動儲存到 content/drafts/'}</span>
+        <span className="write-status">{status || (source === 'posts' ? '編輯已發佈文章：自動儲存到 content/posts/，改完要 git push 才會更新線上' : '自動儲存到 content/drafts/')}</span>
         <div className="write-actions">
-          {exists && <Link to={`/drafts/${meta.slug}`}>預覽成品</Link>}
+          {exists && <Link to={source === 'posts' ? `/blog/${meta.slug}` : `/drafts/${meta.slug}`}>預覽成品</Link>}
           <button type="button" onClick={() => void save()}>
             儲存
           </button>
-          <button type="button" className="primary" disabled={!exists} onClick={() => void publish()}>
-            發布
+          <button type="button" className="primary" disabled={!exists || source === 'posts'} onClick={() => void publish()}>
+            {source === 'posts' ? '已發布' : '發布'}
           </button>
         </div>
       </div>
@@ -355,11 +363,21 @@ export function Write() {
           ＋ 新草稿
         </button>
         {list.map((p) => (
-          <button key={p.slug} type="button" className={p.slug === slugParam ? 'on' : ''} onClick={() => setParams({ slug: p.slug })}>
+          <button key={p.slug} type="button" className={source === 'drafts' && p.slug === slugParam ? 'on' : ''} onClick={() => setParams({ slug: p.slug })}>
             {p.title || p.slug}
           </button>
         ))}
       </div>
+      {published.length > 0 && (
+        <div className="write-drafts" aria-label="已發佈的文章">
+          <span className="write-drafts-label">已發佈</span>
+          {published.map((p) => (
+            <button key={p.slug} type="button" className={source === 'posts' && p.slug === slugParam ? 'on' : ''} onClick={() => setParams({ slug: p.slug, from: 'posts' })}>
+              {p.title || p.slug}
+            </button>
+          ))}
+        </div>
+      )}
 
       <input className="write-title" value={meta.title} placeholder="標題" aria-label="標題" onChange={(e) => set({ title: e.target.value })} />
       <input

@@ -1486,3 +1486,4 @@ input.write-title { display: block; width: 100%; margin: 1.5rem 0 0; padding: 0;
 .byline-who img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
 .share-btn { margin-left: auto; display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; padding: 0; color: var(--muted); background: transparent; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; }
 .share-btn:hover { color: var(--text, inherit); }
+.write-drafts-label { align-self: center; font-size: 0.85rem; color: var(--muted); margin-right: 4px; }
