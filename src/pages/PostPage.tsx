@@ -9,6 +9,29 @@ import { Seo } from '../components/Seo'
 import { NotFound } from './NotFound'
 import { useLang } from '../i18n'
 
+function ShareButton({ title, zh }: { title: string; zh: boolean }) {
+  const [done, setDone] = useState(false)
+  async function share() {
+    const url = location.href
+    try {
+      if (navigator.share) {
+        await navigator.share({ title, url })
+        return
+      }
+      await navigator.clipboard.writeText(url)
+      setDone(true)
+      setTimeout(() => setDone(false), 2000)
+    } catch {
+      /* 使用者取消分享 */
+    }
+  }
+  return (
+    <button type="button" className="share-btn" onClick={share}>
+      {done ? (zh ? '已複製連結' : 'Link copied') : zh ? '分享／複製連結' : 'Share / copy link'}
+    </button>
+  )
+}
+
 export function PostPage({ draft = false }: { draft?: boolean }) {
   const { slug } = useParams()
   const { lang, t } = useLang()
@@ -58,6 +81,7 @@ export function PostPage({ draft = false }: { draft?: boolean }) {
           <img src={`${import.meta.env.BASE_URL}avatar-home.png`} alt="" width="32" height="32" />
           <span>莫力全 Kyle Mo</span>
         </Link>
+        {!draft && <ShareButton title={post.title} zh={lang === 'zh'} />}
       </p>
       {post.tags.length > 0 && (
         <p className="tags">
