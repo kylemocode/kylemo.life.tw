@@ -257,7 +257,7 @@ export function Write() {
       <input
         className="write-desc"
         value={meta.description}
-        placeholder="一句話摘要，會顯示在文章列表和搜尋結果"
+        placeholder="摘要（選填，留空會自動取內文開頭）"
         aria-label="摘要"
         onChange={(e) => set({ description: e.target.value })}
       />

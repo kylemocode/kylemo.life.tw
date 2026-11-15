@@ -29,6 +29,23 @@ export function parse(raw: string) {
   return { meta, body: m[2].trim() }
 }
 
+// 沒寫摘要時，用內文開頭自動產生：去掉 Markdown 符號，取第一段約 90 字
+export function excerpt(body: string, max = 90) {
+  const para =
+    body
+      .replace(/```[\s\S]*?```/g, '')
+      .split(/\n\s*\n/)
+      .map((b) => b.trim())
+      .find((b) => b && !/^(#{1,6}\s|>|[-*]\s|\d+\.\s|!\[|---)/.test(b)) ?? ''
+  const text = para
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .replace(/[*_`~]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+  return text.length > max ? text.slice(0, max).trimEnd() + '…' : text
+}
+
 function parseTags(v = '', slug = '') {
   const all = v
     .replace(/^\[|\]$/g, '')
@@ -56,14 +73,14 @@ export function buildPosts(files: Record<string, string>): Post[] {
     const post: Post = {
       slug,
       title: meta.title || slug,
-      description: meta.description || '',
+      description: meta.description || excerpt(body),
       date: meta.date || '1970-01-01',
       tags: parseTags(meta.tags, slug),
       body,
     }
     if (en[slug]) {
       const e = parse(en[slug])
-      post.en = { title: e.meta.title || post.title, description: e.meta.description || post.description, body: e.body }
+      post.en = { title: e.meta.title || post.title, description: e.meta.description || excerpt(e.body) || post.description, body: e.body }
     }
     return post
   })
