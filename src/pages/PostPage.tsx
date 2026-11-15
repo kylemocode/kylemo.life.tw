@@ -6,7 +6,6 @@ import { formatDate, localizePost, posts, type Post } from '../data/posts'
 import { tagLabel } from '../data/tags'
 import { AuthorBox } from '../components/AuthorBox'
 import { Seo } from '../components/Seo'
-import { MagneticLink } from '../components/MagneticLink'
 import { NotFound } from './NotFound'
 import { useLang } from '../i18n'
 
@@ -54,6 +53,12 @@ export function PostPage({ draft = false }: { draft?: boolean }) {
       <p className="meta">
         <time dateTime={post.date}>{formatDate(post.date, lang)}</time>
       </p>
+      <p className="byline">
+        <Link className="byline-who" to="/about">
+          <img src={`${import.meta.env.BASE_URL}avatar-home.png`} alt="" width="32" height="32" />
+          <span>莫力全 Kyle Mo</span>
+        </Link>
+      </p>
       {post.tags.length > 0 && (
         <p className="tags">
           {post.tags.map((t) => (
@@ -66,9 +71,9 @@ export function PostPage({ draft = false }: { draft?: boolean }) {
       <div className="prose" dangerouslySetInnerHTML={{ __html: html }} />
       <AuthorBox />
       <p className="post-back">
-        <MagneticLink to={draft ? '/drafts' : '/blog'} small>
+        <Link className="btn-accent btn-static" to={draft ? '/drafts' : '/blog'}>
           {draft ? '所有草稿' : t('post.back')}
-        </MagneticLink>
+        </Link>
       </p>
     </article>
   )
