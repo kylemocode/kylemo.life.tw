@@ -53,7 +53,7 @@ Body in Markdown: headings, lists, quotes, code blocks, links, images.
 - Tags are keys defined in `src/data/tags.ts` (`life`, `career`, `nomad`), each with a Chinese and an English label. Add a new tag there first; tags not defined there are ignored and not shown.
 - `my-post.en.md` is the optional English version (needs only `title` and `description`). Without it, English mode shows the Chinese post.
 - Put images in `public/images/` and reference them as `![alt](/images/pic.png)`.
-- Drafts: put the `.md` in `content/drafts/` and open `/drafts` on localhost (`npm run dev`). Drafts are never bundled into the production build. When ready, move the file to `content/posts/`.
+- Writing: run `npm run dev` and open `/write` on localhost. It is a WYSIWYG editor that autosaves to `content/drafts/<slug>.md` (paste or drop images to save them in `public/images/`). `/drafts` previews drafts as finished posts. Both exist only on localhost and are not part of the production build. When ready, move the file to `content/posts/`.
 - Publish with `git add`, `git commit`, `git push`.
 
 ## Project structure

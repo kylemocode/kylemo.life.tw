@@ -18,7 +18,7 @@ export type Post = {
 // 檔名（不含副檔名）就是網址：content/posts/my-post.md → /blog/my-post
 const files = import.meta.glob('/content/posts/*.md', { query: '?raw', import: 'default', eager: true }) as Record<string, string>
 
-function parse(raw: string) {
+export function parse(raw: string) {
   const m = raw.replace(/\r\n/g, '\n').match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/)
   const meta: Record<string, string> = {}
   if (!m) return { meta, body: raw.trim() }
@@ -43,12 +43,7 @@ function parseTags(v = '', slug = '') {
   return valid
 }
 
-// 草稿放 content/drafts/，只在本機開發時讀取（上線版本不會打包進去），網址是 /drafts
-const draftFiles = (import.meta.env.DEV
-  ? import.meta.glob('/content/drafts/*.md', { query: '?raw', import: 'default', eager: true })
-  : {}) as Record<string, string>
-
-function build(files: Record<string, string>): Post[] {
+export function buildPosts(files: Record<string, string>): Post[] {
   const zh: Record<string, string> = {}
   const en: Record<string, string> = {}
   for (const [path, raw] of Object.entries(files)) {
@@ -74,8 +69,7 @@ function build(files: Record<string, string>): Post[] {
   })
 }
 
-export const posts: Post[] = build(files)
-export const drafts: Post[] = build(draftFiles).sort((a, b) => b.date.localeCompare(a.date))
+export const posts: Post[] = buildPosts(files)
 
 export function localizePost(post: Post, lang: 'zh' | 'en'): Post {
   return lang === 'en' && post.en ? { ...post, ...post.en } : post

@@ -1407,3 +1407,22 @@ article .tags {
 .post-back {
   margin-top: 48px;
 }
+
+/* 本機寫作頁 /write */
+.write-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; margin: 1rem 0; }
+.write-bar select, .write-bar button, .write-meta input:not([type='checkbox']) {
+  font: inherit; color: inherit; background: transparent; border: 1px solid var(--muted, currentColor); padding: 0.35rem 0.6rem; border-radius: 0;
+}
+.write-bar button { cursor: pointer; }
+.write-preview { margin-left: auto; }
+.write-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem 1rem; margin-bottom: 1rem; }
+.write-meta label { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.85rem; }
+.write-meta label:nth-child(3) { grid-column: 1 / -1; }
+.write-tags { grid-column: 1 / -1; display: flex; gap: 1rem; flex-wrap: wrap; }
+.write-tags label { flex-direction: row; align-items: center; gap: 0.35rem; }
+.write-toolbar { display: flex; flex-wrap: wrap; gap: 0.35rem; position: sticky; top: 0; padding: 0.5rem 0; background: var(--bg, canvas); z-index: 2; }
+.write-toolbar button { font: inherit; font-size: 0.85rem; color: inherit; background: transparent; border: 1px solid var(--muted, currentColor); padding: 0.2rem 0.6rem; cursor: pointer; }
+.write-toolbar button.on { background: var(--accent, #f60); color: #000; border-color: var(--accent, #f60); }
+.write-editor .write-body { min-height: 50vh; outline: none; border: 1px dashed var(--muted, currentColor); padding: 1rem; }
+.write-editor .write-body p.is-editor-empty:first-child::before { content: attr(data-placeholder); color: var(--muted, gray); float: left; height: 0; pointer-events: none; }
+@media (max-width: 640px) { .write-meta { grid-template-columns: 1fr; } }

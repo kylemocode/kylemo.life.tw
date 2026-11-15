@@ -10,6 +10,8 @@ import { Blog } from './pages/Blog'
 import { PostPage } from './pages/PostPage'
 const Workspace = lazy(() => import('./pages/Workspace').then((m) => ({ default: m.Workspace })))
 import { Drafts } from './pages/Drafts'
+// 寫作頁只在開發模式打包（DEV 為 false 時整段會被移除，上線檔案裡沒有編輯器）
+const Write = import.meta.env.DEV ? lazy(() => import('./pages/Write').then((m) => ({ default: m.Write }))) : null
 import { Preview } from './pages/Preview'
 import { NotFound } from './pages/NotFound'
 import { initAnalytics } from './analytics'
@@ -29,6 +31,16 @@ createRoot(document.getElementById('root')!).render(
           <Route index element={<Home />} />
           <Route path="blog" element={<Blog />} />
           <Route path="blog/:slug" element={<PostPage />} />
+          {isLocal && Write && (
+            <Route
+              path="write"
+              element={
+                <Suspense fallback={<p className="muted page">…</p>}>
+                  <Write />
+                </Suspense>
+              }
+            />
+          )}
           {isLocal && <Route path="drafts" element={<Drafts />} />}
           {isLocal && <Route path="drafts/:slug" element={<PostPage draft />} />}
           <Route
