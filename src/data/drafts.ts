@@ -18,3 +18,9 @@ export async function uploadImage(file: File): Promise<string> {
   if (!res.ok) throw new Error(await res.text())
   return ((await res.json()) as { url: string }).url
 }
+
+// 發布 = 把 content/drafts/<slug>.md（和 .en.md）移到 content/posts/
+export async function publishDraft(slug: string) {
+  const res = await fetch(`/__publish/${slug}`, { method: 'POST' })
+  if (!res.ok) throw new Error(await res.text())
+}

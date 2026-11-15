@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import type { IncomingMessage } from 'node:http'
 import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
@@ -36,6 +36,7 @@ function sitemap(): Plugin {
 // 本機寫作用的小 API（只在 npm run dev 時存在，build 與上線都沒有）：
 //   GET  /__drafts          讀取 content/drafts/ 全部草稿
 //   PUT  /__drafts/:slug    存草稿
+//   POST /__publish/:slug   把草稿移到 content/posts/（發布）
 //   POST /__image?name=     存圖片到 public/images/
 function draftApi(): Plugin {
   const readBody = (req: IncomingMessage) =>
@@ -51,7 +52,7 @@ function draftApi(): Plugin {
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
         const url = new URL(req.url ?? '/', 'http://local')
-        if (!url.pathname.startsWith('/__drafts') && url.pathname !== '/__image') return next()
+        if (!url.pathname.startsWith('/__drafts') && !url.pathname.startsWith('/__publish') && url.pathname !== '/__image') return next()
         const fail = (code: number, msg: string) => {
           res.statusCode = code
           res.end(msg)
@@ -74,6 +75,16 @@ function draftApi(): Plugin {
           if (m && req.method === 'PUT') {
             mkdirSync('content/drafts', { recursive: true })
             writeFileSync(`content/drafts/${m[1]}.md`, await readBody(req))
+            return res.end('ok')
+          }
+          const pub = url.pathname.match(/^\/__publish\/([a-z0-9][a-z0-9-]*)$/)
+          if (pub && req.method === 'POST') {
+            const slug = pub[1]
+            if (!existsSync(`content/drafts/${slug}.md`)) return fail(404, '找不到這篇草稿')
+            if (existsSync(`content/posts/${slug}.md`)) return fail(409, `content/posts/${slug}.md 已經存在，請先改網址名稱`)
+            mkdirSync('content/posts', { recursive: true })
+            renameSync(`content/drafts/${slug}.md`, `content/posts/${slug}.md`)
+            if (existsSync(`content/drafts/${slug}.en.md`)) renameSync(`content/drafts/${slug}.en.md`, `content/posts/${slug}.en.md`)
             return res.end('ok')
           }
           if (url.pathname === '/__image' && req.method === 'POST') {

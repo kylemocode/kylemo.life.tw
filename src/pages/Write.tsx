@@ -6,7 +6,7 @@ import { Markdown } from 'tiptap-markdown'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { Seo } from '../components/Seo'
-import { fetchDrafts, saveDraft, uploadImage } from '../data/drafts'
+import { fetchDrafts, publishDraft, saveDraft, uploadImage } from '../data/drafts'
 import type { Post } from '../data/posts'
 import { tagLabels } from '../data/tags'
 
@@ -208,59 +208,80 @@ export function Write() {
   }
   const toggleTag = (k: string) => set({ tags: meta.tags.includes(k) ? meta.tags.filter((t) => t !== k) : [...meta.tags, k] })
 
+  const exists = slugOk(meta.slug) && list.some((p) => p.slug === meta.slug)
+
+  const publish = async () => {
+    if (!exists) return
+    if (!window.confirm(`發布「${meta.title || meta.slug}」？\n檔案會從 content/drafts/ 移到 content/posts/，之後 git push 就會上線。`)) return
+    await save()
+    try {
+      await publishDraft(meta.slug)
+      setStatus(`已移到 content/posts/${meta.slug}.md，記得 git push 才會上線`)
+      setDirty(false)
+      await refreshList()
+      setParams({}, { replace: true })
+    } catch (e) {
+      setStatus(String(e instanceof Error ? e.message : e))
+    }
+  }
+
   return (
     <section className="page write">
       <Seo title="寫作" noindex />
-      <h1>寫作</h1>
-      <p className="meta">只在本機看得到 · 自動存到 content/drafts/ · 想發布時把檔案移到 content/posts/</p>
 
-      <div className="write-bar">
-        <select value={slugParam ?? ''} onChange={(e) => setParams(e.target.value ? { slug: e.target.value } : {})} aria-label="選擇草稿">
-          <option value="">＋ 新草稿</option>
-          {list.map((p) => (
-            <option key={p.slug} value={p.slug}>
-              {p.title || p.slug}
-            </option>
-          ))}
-        </select>
-        <button type="button" onClick={() => void save()}>
-          儲存
-        </button>
-        <span className="muted">{status}</span>
-        {slugOk(meta.slug) && list.some((p) => p.slug === meta.slug) && (
-          <Link to={`/drafts/${meta.slug}`} className="write-preview">
-            預覽成品 →
-          </Link>
-        )}
+      <div className="write-top">
+        <span className="write-status">{status || '自動儲存到 content/drafts/'}</span>
+        <div className="write-actions">
+          {exists && <Link to={`/drafts/${meta.slug}`}>預覽成品</Link>}
+          <button type="button" onClick={() => void save()}>
+            儲存
+          </button>
+          <button type="button" className="primary" disabled={!exists} onClick={() => void publish()}>
+            發布
+          </button>
+        </div>
       </div>
+
+      <div className="write-drafts" aria-label="草稿">
+        <button type="button" className={!slugParam ? 'on' : ''} onClick={() => setParams({})}>
+          ＋ 新草稿
+        </button>
+        {list.map((p) => (
+          <button key={p.slug} type="button" className={p.slug === slugParam ? 'on' : ''} onClick={() => setParams({ slug: p.slug })}>
+            {p.title || p.slug}
+          </button>
+        ))}
+      </div>
+
+      <input className="write-title" value={meta.title} placeholder="標題" aria-label="標題" onChange={(e) => set({ title: e.target.value })} />
+      <input
+        className="write-desc"
+        value={meta.description}
+        placeholder="一句話摘要，會顯示在文章列表和搜尋結果"
+        aria-label="摘要"
+        onChange={(e) => set({ description: e.target.value })}
+      />
 
       <div className="write-meta">
         <label>
-          標題
-          <input value={meta.title} onChange={(e) => set({ title: e.target.value })} />
-        </label>
-        <label>
-          網址名稱
+          <span>網址</span>
           <input
             value={meta.slug}
             placeholder="my-first-post"
             readOnly={Boolean(slugParam)}
+            title={slugParam ? '存檔後不能改，要改請重新命名檔案' : '英文小寫、數字、連字號'}
             onChange={(e) => set({ slug: e.target.value.toLowerCase() })}
           />
         </label>
         <label>
-          摘要
-          <input value={meta.description} onChange={(e) => set({ description: e.target.value })} />
-        </label>
-        <label>
-          日期
+          <span>日期</span>
           <input type="date" value={meta.date} onChange={(e) => set({ date: e.target.value })} />
         </label>
         <div className="write-tags">
           {Object.entries(tagLabels).map(([k, v]) => (
-            <label key={k}>
-              <input type="checkbox" checked={meta.tags.includes(k)} onChange={() => toggleTag(k)} /> {v.zh}
-            </label>
+            <button key={k} type="button" className={meta.tags.includes(k) ? 'on' : ''} onClick={() => toggleTag(k)}>
+              #{v.zh}
+            </button>
           ))}
         </div>
       </div>
