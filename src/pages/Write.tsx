@@ -71,6 +71,7 @@ export function Write() {
   const selfNav = useRef<string | null>(null) // 第一次存檔時我們自己改網址，不要因此重新載入內容
   const loaded = useRef(false) // 載入草稿內容期間不要觸發自動存檔
   const fileInput = useRef<HTMLInputElement>(null)
+  const lastImage = useRef({ key: '', at: 0 })
   const metaRef = useRef(meta)
   metaRef.current = meta
 
@@ -104,6 +105,11 @@ export function Write() {
 
   const insertImage = useCallback(
     async (file: File) => {
+      // 貼上時瀏覽器偶爾會連續觸發兩次，短時間內同一張圖只處理一次
+      const key = `${file.name}:${file.size}`
+      const now = Date.now()
+      if (lastImage.current.key === key && now - lastImage.current.at < 1500) return
+      lastImage.current = { key, at: now }
       try {
         const url = await uploadImage(file)
         editor?.chain().focus().setImage({ src: url, alt: file.name.replace(/\.[^.]+$/, '') }).run()
