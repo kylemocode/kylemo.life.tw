@@ -292,10 +292,15 @@ export function Write() {
   // 自動暫存：停筆 1.5 秒後存檔
   useEffect(() => {
     if (!dirty || !slugOk(meta.slug)) return
+    // 已發佈的文章不自動存：改完按「儲存」（或 Cmd/Ctrl+S）一次寫入
+    if (source === 'posts') {
+      setStatus('有尚未儲存的修改，改完請按「儲存」或 Cmd/Ctrl+S')
+      return
+    }
     setStatus('尚未儲存…')
     const id = setTimeout(() => void save(), 1500)
     return () => clearTimeout(id)
-  }, [dirty, meta, save])
+  }, [dirty, meta, save, source])
 
   // 有未存的變更時，關閉分頁會提醒
   useEffect(() => {
@@ -346,10 +351,10 @@ export function Write() {
       <Seo title="寫作" noindex />
 
       <div className="write-top">
-        <span className="write-status">{status || (source === 'posts' ? '編輯已發佈文章：自動儲存到 content/posts/，改完要 git push 才會更新線上' : '自動儲存到 content/drafts/')}</span>
+        <span className="write-status">{status || (source === 'posts' ? '編輯已發佈文章：不會自動儲存，改完按「儲存」寫入 content/posts/，git push 後才會更新線上' : '自動儲存到 content/drafts/')}</span>
         <div className="write-actions">
           {exists && <Link to={source === 'posts' ? `/blog/${meta.slug}` : `/drafts/${meta.slug}`}>預覽成品</Link>}
-          <button type="button" onClick={() => void save()}>
+          <button type="button" className={source === 'posts' && dirty ? 'primary' : ''} onClick={() => void save()}>
             儲存
           </button>
           <button type="button" className="primary" disabled={!exists || source === 'posts'} onClick={() => void publish()}>
