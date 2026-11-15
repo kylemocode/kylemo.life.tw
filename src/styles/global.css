@@ -1474,3 +1474,6 @@ input.write-title { display: block; width: 100%; margin: 1.5rem 0 0; padding: 0;
 .img-caption { display: block; width: 100%; margin-top: 0.5rem; padding: 0; border: 0; background: transparent; outline: none; text-align: center; font-family: inherit; font-size: 0.85rem; color: var(--muted); }
 .img-caption::placeholder { opacity: 0.45; }
 .write-toolbar-sep { width: 1px; background: var(--border); margin: 0 0.4rem; }
+
+/* 縮小的圖片：寬度由外層（figure / 編輯器的 img-node）決定，圖填滿它 */
+.prose figure.fig-sized img, .img-node.img-sized img { width: 100%; }

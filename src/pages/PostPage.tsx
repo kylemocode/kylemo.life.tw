@@ -20,15 +20,17 @@ export function PostPage({ draft = false }: { draft?: boolean }) {
   const found = (draft ? drafts ?? [] : posts).find((p) => p.slug === slug)
   const post = found && localizePost(found, lang)
 
-  // 單獨一行的圖片轉成 <figure>：alt 當圖片說明，title 寫 "align:center"（或 right）決定對齊
+  // 單獨一行的圖片轉成 <figure>：alt 當圖片說明，title 寫 "align:center size:50" 決定對齊與縮放
   const html = useMemo(
     () =>
       post
         ? (marked.parse(post.body, { async: false }) as string).replace(/<p>(<img [^>]*>)<\/p>/g, (_m, img: string) => {
             const attr = (k: string) => img.match(new RegExp(`${k}="([^"]*)"`))?.[1] ?? ''
-            const align = attr('title').match(/^align:(left|center|right)$/)?.[1] ?? 'left'
+            const align = attr('title').match(/align:(left|center|right)/)?.[1] ?? 'left'
+            const size = Number(attr('title').match(/size:(\d+)/)?.[1] ?? 100)
+            const sized = size >= 10 && size < 100
             const alt = attr('alt') === 'image' ? '' : attr('alt') // 早期貼上的圖 alt 是預設的 image，不當成說明
-            return `<figure class="fig fig-${align}"><img src="${attr('src')}" alt="${alt}" loading="lazy">${alt ? `<figcaption>${alt}</figcaption>` : ''}</figure>`
+            return `<figure class="fig fig-${align}${sized ? ' fig-sized' : ''}"${sized ? ` style="width:${size}%"` : ''}><img src="${attr('src')}" alt="${alt}" loading="lazy">${alt ? `<figcaption>${alt}</figcaption>` : ''}</figure>`
           })
         : '',
     [post],

@@ -10,9 +10,21 @@ import { fetchDrafts, publishDraft, saveDraft, uploadImage } from '../data/draft
 import type { Post } from '../data/posts'
 import { tagLabels } from '../data/tags'
 
+// 圖片的對齊與大小都存在 Markdown 圖片的 title，例如 "align:center size:50"
+type Align = 'left' | 'center' | 'right'
+function parseImgTitle(title: string | null | undefined): { align: Align; size: number } {
+  const align = (title?.match(/align:(left|center|right)/)?.[1] ?? 'left') as Align
+  const size = Number(title?.match(/size:(\d+)/)?.[1] ?? 100)
+  return { align, size: size >= 10 && size <= 100 ? size : 100 }
+}
+function buildImgTitle(align: Align, size: number): string | null {
+  const parts = [align !== 'left' ? `align:${align}` : '', size < 100 ? `size:${size}` : ''].filter(Boolean)
+  return parts.length ? parts.join(' ') : null
+}
+
 // 圖片：圖下方直接輸入說明（選填，存成 Markdown 的 alt）；對齊存在 title（align:center / align:right）
 function ImageView({ node, updateAttributes, selected }: NodeViewProps) {
-  const align = (node.attrs.title as string | null)?.match(/^align:(left|center|right)$/)?.[1] ?? 'left'
+  const { align, size } = parseImgTitle(node.attrs.title as string | null)
   const saved = node.attrs.alt === 'image' ? '' : ((node.attrs.alt as string | null) ?? '') // 早期貼上的預設 alt 不當成說明
   // 輸入法（注音等）組字期間不能改動輸入框的值，所以用本地 state，組字結束才寫回編輯器
   const [text, setText] = useState(saved)
@@ -21,7 +33,7 @@ function ImageView({ node, updateAttributes, selected }: NodeViewProps) {
     if (!composing.current) setText(saved)
   }, [saved])
   return (
-    <NodeViewWrapper className={`img-node img-${align}${selected ? ' sel' : ''}`}>
+    <NodeViewWrapper className={`img-node img-${align}${size < 100 ? ' img-sized' : ''}${selected ? ' sel' : ''}`} style={size < 100 ? { width: `${size}%` } : undefined}>
       <img src={node.attrs.src as string} alt={saved} draggable={false} />
       <input
         className="img-caption"
@@ -126,9 +138,24 @@ function Toolbar({ editor, onImage }: { editor: Editor; onImage: () => void }) {
           {(['left', 'center', 'right'] as const).map((a) =>
             btn(
               { left: '圖靠左', center: '圖置中', right: '圖靠右' }[a],
-              (editor.getAttributes('image').title ?? 'align:left') === `align:${a}` || (a === 'left' && !editor.getAttributes('image').title),
-              () => c().updateAttributes('image', { title: a === 'left' ? null : `align:${a}` }).run(),
+              parseImgTitle(editor.getAttributes('image').title).align === a,
+              () => {
+                const cur = parseImgTitle(editor.getAttributes('image').title)
+                c().updateAttributes('image', { title: buildImgTitle(a, cur.size) }).run()
+              },
               '先點選圖片，再選對齊方式',
+            ),
+          )}
+          <span className="write-toolbar-sep" />
+          {([25, 50, 75, 100] as const).map((n) =>
+            btn(
+              `${n}%`,
+              parseImgTitle(editor.getAttributes('image').title).size === n,
+              () => {
+                const cur = parseImgTitle(editor.getAttributes('image').title)
+                c().updateAttributes('image', { title: buildImgTitle(cur.align, n) }).run()
+              },
+              n === 100 ? '原始大小（最寬不超過文章寬度）' : `縮小到文章寬度的 ${n}%`,
             ),
           )}
         </>
