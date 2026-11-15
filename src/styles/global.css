@@ -1443,3 +1443,15 @@ input.write-title { display: block; width: 100%; margin: 1.5rem 0 0; padding: 0;
 
 .draft-bar { display: flex; align-items: center; gap: 0.75rem; margin: 0 0 1.5rem; }
 .draft-bar .meta { margin: 0; }
+
+/* 文章底部作者簡介 */
+.author-box { display: flex; gap: 1.25rem; align-items: flex-start; margin: 3.5rem 0 2rem; padding: 1.5rem 0; border-block: 1px solid var(--border); }
+.author-box img { flex: none; width: 72px; height: 72px; object-fit: cover; image-rendering: auto; }
+.author-box p { margin: 0; font-size: 0.95rem; line-height: 1.8; color: var(--muted); }
+.author-name { color: var(--text); font-weight: 700; text-decoration: none; }
+.author-name:hover { color: var(--accent); }
+.author-links { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 0.5rem !important; font-size: 0.85rem !important; }
+.author-links a { color: var(--muted); text-decoration: underline; text-underline-offset: 4px; text-decoration-color: var(--border); }
+.author-links a:hover { color: var(--accent); text-decoration-color: var(--accent); }
+@media (max-width: 520px) { .author-box { gap: 1rem; } .author-box img { width: 56px; height: 56px; } }
+.author-box > div { flex: 1; min-width: 0; }

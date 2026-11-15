@@ -4,6 +4,7 @@ import { Link, useParams } from 'react-router-dom'
 import { fetchDrafts } from '../data/drafts'
 import { formatDate, localizePost, posts, type Post } from '../data/posts'
 import { tagLabel } from '../data/tags'
+import { AuthorBox } from '../components/AuthorBox'
 import { Seo } from '../components/Seo'
 import { MagneticLink } from '../components/MagneticLink'
 import { NotFound } from './NotFound'
@@ -49,6 +50,7 @@ export function PostPage({ draft = false }: { draft?: boolean }) {
         </p>
       )}
       <div className="prose" dangerouslySetInnerHTML={{ __html: html }} />
+      <AuthorBox />
       <p className="post-back">
         <MagneticLink to={draft ? '/drafts' : '/blog'} small>
           {draft ? '所有草稿' : t('post.back')}
