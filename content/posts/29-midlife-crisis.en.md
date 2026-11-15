@@ -74,6 +74,6 @@ My favorite passage in *The Middle Passage* is about "work and vocation."
 
 "There is a great difference between a job and a vocation. A job is a means of earning money to meet our economic needs. A vocation is what we are called to do, and it requires life energy to accomplish. Feeling one's own productivity is a necessary part of individuation, and a person who does not answer the call harms the soul."
 
-Perhaps the luckiest people are those who can combine work and vocation. As for me at this stage, I've come to recognize that "work" is simply my means of making a living. I need it to pay the necessary bills, and that is how my soul gets replenished. As for "vocation," I believe that one day it will finally call me, and I will know what I should do. What I need to do now is set out on the journey of exploring it, hoping that someday I'll be close enough to hear its voice, and then answer its call.
+Perhaps the luckiest people are those who can combine work and vocation. As for me at this stage, I've come to recognize that "work" is, for me, simply a means of making a living. I need it to pay the necessary bills, and that is how my soul gets replenished. As for "vocation," I believe that one day it will finally call me, and when it does, I will know what I should do. What I need to do now is set out on the journey of exploring it, hoping that someday I'll be close enough to hear its voice, and resonate with it.
 
-At 29, I have just stepped onto the Middle Passage. The story of my life continues.
+At 29, I have just stepped onto the Middle Passage. The journey has only just begun.
