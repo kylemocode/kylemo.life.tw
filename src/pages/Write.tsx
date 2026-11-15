@@ -1,14 +1,52 @@
-import { useEditor, EditorContent, type Editor } from '@tiptap/react'
+import { useEditor, EditorContent, NodeViewWrapper, ReactNodeViewRenderer, type Editor, type NodeViewProps } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Image from '@tiptap/extension-image'
 import Placeholder from '@tiptap/extension-placeholder'
 import { Markdown } from 'tiptap-markdown'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { Seo } from '../components/Seo'
 import { fetchDrafts, publishDraft, saveDraft, uploadImage } from '../data/drafts'
 import type { Post } from '../data/posts'
 import { tagLabels } from '../data/tags'
+
+// 圖片：圖下方直接輸入說明（選填，存成 Markdown 的 alt）；對齊存在 title（align:center / align:right）
+function ImageView({ node, updateAttributes, selected }: NodeViewProps) {
+  const align = (node.attrs.title as string | null)?.match(/^align:(left|center|right)$/)?.[1] ?? 'left'
+  const alt = node.attrs.alt === 'image' ? '' : ((node.attrs.alt as string | null) ?? '') // 早期貼上的預設 alt 不當成說明
+  return (
+    <NodeViewWrapper className={`img-node img-${align}${selected ? ' sel' : ''}`}>
+      <img src={node.attrs.src as string} alt={alt} draggable={false} />
+      <input
+        className="img-caption"
+        value={alt}
+        placeholder="新增圖片說明（選填）"
+        aria-label="圖片說明"
+        onChange={(e) => updateAttributes({ alt: e.target.value })}
+      />
+    </NodeViewWrapper>
+  )
+}
+
+const CaptionImage = Image.extend({
+  addNodeView() {
+    return ReactNodeViewRenderer(ImageView)
+  },
+  // 圖片是獨立一塊，輸出 Markdown 後要和下一段分開
+  addStorage() {
+    return {
+      markdown: {
+        serialize(state: any, node: any) {
+          const alt = node.attrs.alt === 'image' ? '' : (node.attrs.alt ?? '')
+          const title = node.attrs.title ? ` "${String(node.attrs.title).replace(/"/g, '\\"')}"` : ''
+          state.write(`![${state.esc(alt)}](${String(node.attrs.src).replace(/[()]/g, '\\$&')}${title})`)
+          state.closeBlock(node)
+        },
+        parse: {},
+      },
+    }
+  },
+})
 
 // 本機寫作頁：所見即所得編輯，自動存成 content/drafts/<slug>.md。只在 localhost 有路由。
 const today = () => new Date().toLocaleDateString('sv') // YYYY-MM-DD
@@ -32,6 +70,14 @@ function toMarkdown(meta: Meta, body: string) {
 const slugOk = (s: string) => /^[a-z0-9][a-z0-9-]*$/.test(s)
 
 function Toolbar({ editor, onImage }: { editor: Editor; onImage: () => void }) {
+  // 選取或游標移動時重畫工具列，按鈕的亮起狀態與圖片對齊按鈕才會跟著變
+  const [, bump] = useReducer((n: number) => n + 1, 0)
+  useEffect(() => {
+    editor.on('transaction', bump)
+    return () => {
+      editor.off('transaction', bump)
+    }
+  }, [editor])
   const btn = (label: string, active: boolean, run: () => void, title: string) => (
     <button type="button" className={active ? 'on' : ''} title={title} onMouseDown={(e) => e.preventDefault()} onClick={run}>
       {label}
@@ -58,6 +104,19 @@ function Toolbar({ editor, onImage }: { editor: Editor; onImage: () => void }) {
       {btn('連結', editor.isActive('link'), link, '連結')}
       {btn('圖片', false, onImage, '插入圖片（也可以直接貼上或拖進來）')}
       {btn('—', false, () => c().setHorizontalRule().run(), '分隔線')}
+      {editor.isActive('image') && (
+        <>
+          <span className="write-toolbar-sep" />
+          {(['left', 'center', 'right'] as const).map((a) =>
+            btn(
+              { left: '圖靠左', center: '圖置中', right: '圖靠右' }[a],
+              (editor.getAttributes('image').title ?? 'align:left') === `align:${a}` || (a === 'left' && !editor.getAttributes('image').title),
+              () => c().updateAttributes('image', { title: a === 'left' ? null : `align:${a}` }).run(),
+              '先點選圖片，再選對齊方式',
+            ),
+          )}
+        </>
+      )}
     </div>
   )
 }
@@ -78,7 +137,7 @@ export function Write() {
   const editor = useEditor({
     extensions: [
       StarterKit,
-      Image,
+      CaptionImage,
       Placeholder.configure({ placeholder: '在這裡開始寫…' }),
       Markdown.configure({ html: false, tightLists: true, linkify: false }),
     ],
@@ -112,7 +171,7 @@ export function Write() {
       lastImage.current = { key, at: now }
       try {
         const url = await uploadImage(file)
-        editor?.chain().focus().setImage({ src: url, alt: file.name.replace(/\.[^.]+$/, '') }).run()
+        editor?.chain().focus().setImage({ src: url, alt: '' }).run()
       } catch {
         setStatus('圖片上傳失敗')
       }
