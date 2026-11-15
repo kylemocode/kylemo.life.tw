@@ -5,3 +5,7 @@ dist
 .vite
 .env.local
 .env*.local
+
+# 草稿只留在本機，不推上 GitHub（repo 是公開的）
+content/drafts/*
+!content/drafts/.gitkeep
