@@ -1440,3 +1440,6 @@ input.write-title { display: block; width: 100%; margin: 1.5rem 0 0; padding: 0;
 .write-editor .write-body { min-height: 55vh; outline: none; padding: 1rem 0 4rem; }
 .write-editor .write-body p.is-editor-empty:first-child::before { content: attr(data-placeholder); color: var(--muted); opacity: 0.5; float: left; height: 0; pointer-events: none; }
 @media (max-width: 640px) { .write-tags { margin-left: 0; } input.write-title { font-size: 28px; } }
+
+.draft-bar { display: flex; align-items: center; gap: 0.75rem; margin: 0 0 1.5rem; }
+.draft-bar .meta { margin: 0; }

@@ -27,8 +27,11 @@ export function PostPage({ draft = false }: { draft?: boolean }) {
   return (
     <article className="page">
       {draft && (
-        <p className="meta">
-          草稿預覽（只在本機看得到）· <Link to={`/write?slug=${post.slug}`}>回編輯器</Link>
+        <p className="draft-bar">
+          <Link className="btn-accent btn-sm" to={`/write?slug=${post.slug}`}>
+            ← 回編輯器
+          </Link>
+          <span className="meta">草稿預覽（只在本機看得到）</span>
         </p>
       )}
       <Seo title={post.title} description={post.description} />
