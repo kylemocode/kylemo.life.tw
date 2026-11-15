@@ -13,16 +13,32 @@ import { tagLabels } from '../data/tags'
 // 圖片：圖下方直接輸入說明（選填，存成 Markdown 的 alt）；對齊存在 title（align:center / align:right）
 function ImageView({ node, updateAttributes, selected }: NodeViewProps) {
   const align = (node.attrs.title as string | null)?.match(/^align:(left|center|right)$/)?.[1] ?? 'left'
-  const alt = node.attrs.alt === 'image' ? '' : ((node.attrs.alt as string | null) ?? '') // 早期貼上的預設 alt 不當成說明
+  const saved = node.attrs.alt === 'image' ? '' : ((node.attrs.alt as string | null) ?? '') // 早期貼上的預設 alt 不當成說明
+  // 輸入法（注音等）組字期間不能改動輸入框的值，所以用本地 state，組字結束才寫回編輯器
+  const [text, setText] = useState(saved)
+  const composing = useRef(false)
+  useEffect(() => {
+    if (!composing.current) setText(saved)
+  }, [saved])
   return (
     <NodeViewWrapper className={`img-node img-${align}${selected ? ' sel' : ''}`}>
-      <img src={node.attrs.src as string} alt={alt} draggable={false} />
+      <img src={node.attrs.src as string} alt={saved} draggable={false} />
       <input
         className="img-caption"
-        value={alt}
+        value={text}
         placeholder="新增圖片說明（選填）"
         aria-label="圖片說明"
-        onChange={(e) => updateAttributes({ alt: e.target.value })}
+        onCompositionStart={() => {
+          composing.current = true
+        }}
+        onCompositionEnd={(e) => {
+          composing.current = false
+          updateAttributes({ alt: e.currentTarget.value })
+        }}
+        onChange={(e) => {
+          setText(e.target.value)
+          if (!composing.current) updateAttributes({ alt: e.target.value })
+        }}
       />
     </NodeViewWrapper>
   )
