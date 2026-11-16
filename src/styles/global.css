@@ -1512,3 +1512,5 @@ input.write-title { display: block; width: 100%; margin: 1.5rem 0 0; padding: 0;
 .share-dialog-actions { justify-content: center; }
 .share-secondary { display: inline-flex; align-items: center; gap: 8px; }
 .share-secondary:disabled { opacity: .5; cursor: default; }
+.share-hint { display: none; margin: 0; text-align: center; font-size: 0.8rem; color: var(--muted); }
+@media (pointer: coarse) { .share-hint { display: block; } }

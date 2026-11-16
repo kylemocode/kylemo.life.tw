@@ -61,11 +61,22 @@ export function ShareMenu({ slug, title, summary, minutes, dateText, zh }: Props
     }
   }, [])
 
-  const save = () => {
+  const save = async () => {
     if (!blob) return
+    const file = new File([blob], `${slug}-${size.replace(':', 'x')}.png`, { type: 'image/png' })
+    // 手機上走系統分享選單，裡面有「儲存影像」可以直接存進相簿（直接下載檔案只會進「檔案」App）
+    const touch = window.matchMedia('(pointer: coarse)').matches
+    if (touch && navigator.canShare?.({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file] })
+        return
+      } catch (e) {
+        if (e instanceof DOMException && e.name === 'AbortError') return // 使用者取消
+      }
+    }
     const a = document.createElement('a')
     a.href = URL.createObjectURL(blob)
-    a.download = `${slug}-${size.replace(':', 'x')}.png`
+    a.download = file.name
     a.click()
     setTimeout(() => URL.revokeObjectURL(a.href), 1000)
   }
@@ -97,6 +108,7 @@ export function ShareMenu({ slug, title, summary, minutes, dateText, zh }: Props
               </button>
             </div>
             <div className="share-preview">{error ? <p>{error}</p> : preview && blob ? <img src={preview} alt={tx('分享圖片預覽', 'Share image preview')} /> : <p>{tx('產生中…', 'Creating…')}</p>}</div>
+            <p className="share-hint">{tx('手機上也可以長按圖片來儲存', 'On mobile you can also press and hold the image to save it')}</p>
             <div className="share-dialog-actions">
               <button type="button" className="share-secondary" onClick={() => void copy()}>
                 <svg {...svg}>
@@ -111,7 +123,7 @@ export function ShareMenu({ slug, title, summary, minutes, dateText, zh }: Props
                 </svg>
                 {copied ? tx('已複製連結', 'Link copied') : tx('複製連結', 'Copy link')}
               </button>
-              <button type="button" className="share-secondary" disabled={!blob} onClick={save}>
+              <button type="button" className="share-secondary" disabled={!blob} onClick={() => void save()}>
                 <svg {...svg}>
                   <path d="M12 4v11M7 11l5 5 5-5M5 20h14" />
                 </svg>
