@@ -4,6 +4,7 @@ import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import { excerpt, parse } from './src/data/postParse'
 import { dict } from './src/data/i18n'
+import { tagLabels } from './src/data/tags'
 
 const ORIGIN = 'https://kylemo.me'
 
@@ -59,6 +60,41 @@ function ogPages(): Plugin {
     h = setMeta(h, 'name', 'twitter:image', ORIGIN + o.image)
     return h
   }
+  // 文章專用的結構化資料（BlogPosting + 麵包屑），作者與網站指向 index.html 裡既有的 Person / WebSite
+  const articleLd = (o: { slug: string; title: string; desc: string; date?: string; tags: string[]; image: string }) => {
+    const url = `${ORIGIN}/blog/${o.slug}`
+    const data = {
+      '@context': 'https://schema.org',
+      '@graph': [
+        {
+          '@type': 'BlogPosting',
+          '@id': `${url}#article`,
+          mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+          headline: o.title,
+          description: o.desc,
+          url,
+          image: ORIGIN + o.image,
+          ...(o.date ? { datePublished: o.date, dateModified: o.date } : {}),
+          inLanguage: 'zh-Hant-TW',
+          ...(o.tags.length ? { keywords: o.tags.map((k) => tagLabels[k]?.zh ?? k).join(', ') } : {}),
+          author: { '@id': `${ORIGIN}/#person` },
+          publisher: { '@id': `${ORIGIN}/#person` },
+          isPartOf: { '@id': `${ORIGIN}/#website` },
+        },
+        {
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: SITE, item: `${ORIGIN}/` },
+            { '@type': 'ListItem', position: 2, name: dict.zh['blog.title'], item: `${ORIGIN}/blog` },
+            { '@type': 'ListItem', position: 3, name: o.title, item: url },
+          ],
+        },
+      ],
+    }
+    // 避免內文出現 </script> 或 < 造成提早結束
+    const json = JSON.stringify(data).replace(/</g, '\\u003c')
+    return `<script type="application/ld+json">${json}</script>`
+  }
   return {
     name: 'og-pages',
     enforce: 'post',
@@ -79,7 +115,11 @@ function ogPages(): Plugin {
             const slug = f.replace(/\.md$/, '')
             const { meta, body } = parse(readFileSync(`content/posts/${f}`, 'utf8'))
             const title = `${meta.title || slug} · ${SITE}`
-            emit(`blog/${slug}`, page(base, { title, desc: meta.description || excerpt(body), path: `/blog/${slug}`, image: has(slug) ? `/og/${slug}.png` : home }))
+            const desc = meta.description || excerpt(body)
+            const image = has(slug) ? `/og/${slug}.png` : home
+            const tags = (meta.tags ?? '').replace(/^\[|\]$/g, '').split(',').map((t) => t.trim()).filter(Boolean)
+            const ld = articleLd({ slug, title: meta.title || slug, desc, date: meta.date, tags, image })
+            emit(`blog/${slug}`, page(base, { title, desc, path: `/blog/${slug}`, image }).replace('</head>', `    ${ld}\n  </head>`))
           }
         } catch {
           // 還沒有文章也沒關係
