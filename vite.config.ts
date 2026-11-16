@@ -2,6 +2,8 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, writeFile
 import type { IncomingMessage } from 'node:http'
 import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
+import { excerpt, parse } from './src/data/postParse'
+import { dict } from './src/data/i18n'
 
 const ORIGIN = 'https://kylemo.me'
 
@@ -33,6 +35,60 @@ function sitemap(): Plugin {
   }
 }
 
+// LINE、Facebook 等爬蟲不執行 JavaScript，只看原始 HTML。
+// 建置時為每篇文章（以及關於我、文章列表）產生一份靜態 HTML：內容和 index.html 一樣，
+// 只是標題、摘要、分享預覽圖（og:image）換成該頁自己的。瀏覽器載入後仍然由 React 接手。
+function ogPages(): Plugin {
+  const esc = (v: string) => v.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;')
+  const SITE = 'kylemo.life.tw'
+  const setMeta = (html: string, attr: 'property' | 'name', key: string, value: string) =>
+    html.replace(new RegExp(`(<meta ${attr}="${key}" content=")[^"]*(")`), (_m, a: string, b: string) => `${a}${esc(value)}${b}`)
+  const page = (base: string, o: { title: string; desc: string; path: string; image: string }) => {
+    const url = ORIGIN + o.path
+    let h = base
+    h = h.replace(/<title>[^<]*<\/title>/, `<title>${esc(o.title)}</title>`)
+    h = h.replace(/(<link rel="canonical" href=")[^"]*(")/, `$1${url}$2`)
+    h = setMeta(h, 'name', 'description', o.desc)
+    h = setMeta(h, 'property', 'og:title', o.title)
+    h = setMeta(h, 'property', 'og:description', o.desc)
+    h = setMeta(h, 'property', 'og:url', url)
+    h = setMeta(h, 'property', 'og:image', ORIGIN + o.image)
+    h = setMeta(h, 'property', 'og:image:alt', o.title)
+    h = setMeta(h, 'name', 'twitter:title', o.title)
+    h = setMeta(h, 'name', 'twitter:description', o.desc)
+    h = setMeta(h, 'name', 'twitter:image', ORIGIN + o.image)
+    return h
+  }
+  return {
+    name: 'og-pages',
+    enforce: 'post',
+    generateBundle: {
+      order: 'post',
+      handler(_o, bundle) {
+        const entry = bundle['index.html']
+        if (!entry || entry.type !== 'asset') return
+        const base = String(entry.source)
+        const has = (name: string) => existsSync(`public/og/${name}.png`)
+        const home = has('home') ? '/og/home.png' : '/og.png'
+        const emit = (path: string, html: string) => this.emitFile({ type: 'asset', fileName: `${path}/index.html`, source: html })
+        emit('about', page(base, { title: `${dict.zh['page.about']} · ${SITE}`, desc: dict.zh['seo.about'], path: '/about', image: home }))
+        emit('blog', page(base, { title: `${dict.zh['blog.title']} · ${SITE}`, desc: dict.zh['seo.blog'], path: '/blog', image: home }))
+        try {
+          for (const f of readdirSync('content/posts')) {
+            if (!f.endsWith('.md') || f.endsWith('.en.md')) continue
+            const slug = f.replace(/\.md$/, '')
+            const { meta, body } = parse(readFileSync(`content/posts/${f}`, 'utf8'))
+            const title = `${meta.title || slug} · ${SITE}`
+            emit(`blog/${slug}`, page(base, { title, desc: meta.description || excerpt(body), path: `/blog/${slug}`, image: has(slug) ? `/og/${slug}.png` : home }))
+          }
+        } catch {
+          // 還沒有文章也沒關係
+        }
+      },
+    },
+  }
+}
+
 // 本機寫作用的小 API（只在 npm run dev 時存在，build 與上線都沒有）：
 //   GET  /__drafts          讀取 content/drafts/ 全部草稿
 //   PUT  /__drafts/:slug    存草稿
@@ -52,7 +108,7 @@ function draftApi(): Plugin {
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
         const url = new URL(req.url ?? '/', 'http://local')
-        if (!url.pathname.startsWith('/__drafts') && !url.pathname.startsWith('/__publish') && !url.pathname.startsWith('/__posts') && url.pathname !== '/__image') return next()
+        if (!url.pathname.startsWith('/__drafts') && !url.pathname.startsWith('/__publish') && !url.pathname.startsWith('/__posts') && !url.pathname.startsWith('/__og') && url.pathname !== '/__image') return next()
         const fail = (code: number, msg: string) => {
           res.statusCode = code
           res.end(msg)
@@ -104,6 +160,12 @@ function draftApi(): Plugin {
             if (existsSync(`content/drafts/${slug}.en.md`)) renameSync(`content/drafts/${slug}.en.md`, `content/posts/${slug}.en.md`)
             return res.end('ok')
           }
+          const og = url.pathname.match(/^\/__og\/([a-z0-9][a-z0-9-]*)$/)
+          if (og && req.method === 'PUT') {
+            mkdirSync('public/og', { recursive: true })
+            writeFileSync(`public/og/${og[1]}.png`, await readBody(req))
+            return res.end('ok')
+          }
           if (url.pathname === '/__image' && req.method === 'POST') {
             const raw = url.searchParams.get('name') ?? 'image.png'
             const ext = (raw.match(/\.(png|jpe?g|gif|webp|svg)$/i)?.[0] ?? '.png').toLowerCase()
@@ -125,6 +187,6 @@ function draftApi(): Plugin {
 
 // 用自己的網域部署時 base 保持 '/'。
 export default defineConfig({
-  plugins: [react(), sitemap(), draftApi()],
+  plugins: [react(), sitemap(), ogPages(), draftApi()],
   base: '/',
 })

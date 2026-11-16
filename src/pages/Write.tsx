@@ -7,6 +7,7 @@ import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { Seo } from '../components/Seo'
 import { fetchDrafts, fetchPublished, fetchRaw, publishDraft, saveDraft, savePost, uploadImage, type Source } from '../data/drafts'
+import { generatePostOg } from '../lib/ogImage'
 import { buildPosts, parse, type Post } from '../data/posts'
 import { tagLabels } from '../data/tags'
 
@@ -277,6 +278,7 @@ export function Write() {
     try {
       const md = (editor.storage as unknown as { markdown: { getMarkdown: () => string } }).markdown.getMarkdown()
       await (source === 'posts' ? savePost : saveDraft)(m.slug, toMarkdown(m, md))
+      if (source === 'posts') void generatePostOg({ slug: m.slug, title: m.title, description: m.description, date: m.date, body: md }).catch(() => {})
       setDirty(false)
       setStatus(`已儲存 ${new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })}`)
       void refreshList()
@@ -337,6 +339,12 @@ export function Write() {
     await save()
     try {
       await publishDraft(meta.slug)
+      try {
+        const md = (editor!.storage as unknown as { markdown: { getMarkdown: () => string } }).markdown.getMarkdown()
+        await generatePostOg({ slug: meta.slug, title: meta.title, description: meta.description, date: meta.date, body: md })
+      } catch {
+        /* 預覽圖失敗不影響發布，之後編輯儲存時會再產生 */
+      }
       setStatus(`已移到 content/posts/${meta.slug}.md，記得 git push 才會上線`)
       setDirty(false)
       await refreshList()

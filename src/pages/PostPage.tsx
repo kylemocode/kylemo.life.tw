@@ -2,40 +2,13 @@ import { useEffect, useMemo, useState } from 'react'
 import { marked } from 'marked'
 import { Link, useParams } from 'react-router-dom'
 import { fetchDrafts } from '../data/drafts'
-import { formatDate, localizePost, posts, type Post } from '../data/posts'
+import { formatDate, localizePost, posts, readMinutes, type Post } from '../data/posts'
 import { tagLabel } from '../data/tags'
 import { AuthorBox } from '../components/AuthorBox'
+import { ShareMenu } from '../components/ShareMenu'
 import { Seo } from '../components/Seo'
 import { NotFound } from './NotFound'
 import { useLang } from '../i18n'
-
-function ShareButton({ zh }: { zh: boolean }) {
-  const [done, setDone] = useState(false)
-  async function share() {
-    const url = location.href
-    try {
-      await navigator.clipboard.writeText(url)
-      setDone(true)
-      setTimeout(() => setDone(false), 2000)
-    } catch {
-      /* 剪貼簿不可用 */
-    }
-  }
-  return (
-    <button type="button" className="share-btn" onClick={share} aria-label={done ? (zh ? '已複製連結' : 'Link copied') : zh ? '複製連結' : 'Copy link'} title={done ? (zh ? '已複製連結' : 'Link copied') : zh ? '複製連結' : 'Copy link'}>
-      {done ? (
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="M5 12.5l4.5 4.5L19 7.5" />
-        </svg>
-      ) : (
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <rect x="9" y="9" width="11" height="11" rx="2" />
-          <path d="M5 15V6a2 2 0 0 1 2-2h9" />
-        </svg>
-      )}
-    </button>
-  )
-}
 
 export function PostPage({ draft = false }: { draft?: boolean }) {
   const { slug } = useParams()
@@ -65,6 +38,7 @@ export function PostPage({ draft = false }: { draft?: boolean }) {
 
   if (draft && drafts === null) return <p className="muted page">…</p>
   if (!post) return <NotFound />
+  const minutes = readMinutes(found!.body) // 一律用中文原文計算，中英文版顯示同一個時間
 
   return (
     <article className="page">
@@ -80,13 +54,17 @@ export function PostPage({ draft = false }: { draft?: boolean }) {
       <h1>{post.title}</h1>
       <p className="meta">
         <time dateTime={post.date}>{formatDate(post.date, lang)}</time>
+        {'　·　'}
+        {lang === 'zh' ? `約 ${minutes} 分鐘閱讀` : `${minutes} min read`}
       </p>
       <p className="byline">
         <Link className="byline-who" to="/about">
           <img src={`${import.meta.env.BASE_URL}avatar-home.png`} alt="" width="32" height="32" />
           <span>莫力全 Kyle Mo</span>
         </Link>
-        {!draft && <ShareButton zh={lang === 'zh'} />}
+        {!draft && (
+          <ShareMenu slug={post.slug} title={post.title} summary={post.description} minutes={minutes} dateText={formatDate(post.date, lang)} zh={lang === 'zh'} />
+        )}
       </p>
       {post.tags.length > 0 && (
         <p className="tags">

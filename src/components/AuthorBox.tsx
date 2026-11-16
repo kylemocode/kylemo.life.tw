@@ -3,7 +3,7 @@ import { Icon } from './Icons'
 import { site } from '../data/site'
 import { useLang } from '../i18n'
 
-const HELP = ['about.help.0', 'about.help.1', 'about.help.2', 'about.help.3', 'about.help.4', 'about.help.5', 'about.help.6', 'about.help.7'] as const
+const HELP = ['about.help.0', 'about.help.1', 'about.help.2', 'about.help.3', 'about.help.4', 'about.help.5', 'about.help.6'] as const // 「各類有趣的合作」只放在關於我頁，這裡不放
 
 // 文章最下方的作者簡介：簡介、提供的服務、社群 icon
 export function AuthorBox() {
