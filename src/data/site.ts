@@ -11,6 +11,7 @@ export const site = {
   nav: [
     { label: 'nav.about', to: '/about' },
     { label: 'nav.posts', to: '/blog' },
+    { label: 'nav.footprints', to: '/footprints' },
     // { label: 'nav.cowork', to: '/workspace' }, // Cowork 先藏起來，要開放時取消註解
   ],
   // 共同工作空間播放的歌單：貼上 Spotify 或 YouTube 播放清單連結即可。

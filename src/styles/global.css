@@ -1514,3 +1514,89 @@ input.write-title { display: block; width: 100%; margin: 1.5rem 0 0; padding: 0;
 .share-secondary:disabled { opacity: .5; cursor: default; }
 .share-hint { display: none; margin: 0; text-align: center; font-size: 0.8rem; color: var(--muted); }
 @media (pointer: coarse) { .share-hint { display: block; } }
+
+/* ---------- 足跡頁 ---------- */
+.fp-grid {
+  list-style: none;
+  margin: 2rem 0 0;
+  padding: 0;
+  columns: 2 14rem;
+  column-gap: 1.25rem;
+}
+.fp-card {
+  break-inside: avoid;
+  margin: 0 0 1.25rem;
+  padding: 0.9rem 1.1rem;
+  background: var(--surface);
+  /* 像素階梯邊框：四邊各畫一條，四個角留空，看起來就是被切角的像素方塊 */
+  box-shadow:
+    -3px 0 0 0 var(--border),
+    3px 0 0 0 var(--border),
+    0 -3px 0 0 var(--border),
+    0 3px 0 0 var(--border);
+  transition: box-shadow 0.15s steps(2);
+}
+.fp-card:hover:not(.fp-next) {
+  box-shadow:
+    -3px 0 0 0 var(--accent),
+    3px 0 0 0 var(--accent),
+    0 -3px 0 0 var(--accent),
+    0 3px 0 0 var(--accent);
+}
+.fp-country {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 600;
+}
+.fp-flag {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+.fp-cities {
+  list-style: none;
+  margin: 0.45rem 0 0;
+  padding: 0;
+}
+.fp-cities li {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  color: var(--muted);
+  line-height: 1.9;
+}
+/* 城市前面的小方塊：像吃豆人的豆子 */
+.fp-cities li::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  margin-left: 0.2rem;
+  background: var(--accent);
+  flex: none;
+}
+.fp-next {
+  background: transparent;
+  box-shadow: none;
+  outline: 2px dashed var(--border);
+  outline-offset: 1px;
+  color: var(--muted);
+}
+.fp-cursor {
+  width: 0.6rem;
+  height: 1.1rem;
+  background: var(--accent);
+  animation: fp-blink 1s steps(1) infinite;
+}
+@keyframes fp-blink {
+  50% {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fp-cursor {
+    animation: none;
+  }
+  .fp-card {
+    transition: none;
+  }
+}

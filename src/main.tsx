@@ -7,6 +7,7 @@ import { Layout } from './components/Layout'
 import { Home } from './pages/Home'
 import { About } from './pages/About'
 import { Blog } from './pages/Blog'
+import { Footprints } from './pages/Footprints'
 import { PostPage } from './pages/PostPage'
 const Workspace = lazy(() => import('./pages/Workspace').then((m) => ({ default: m.Workspace })))
 import { Drafts } from './pages/Drafts'
@@ -52,6 +53,7 @@ createRoot(document.getElementById('root')!).render(
             }
           />
           <Route path="about" element={<About />} />
+          <Route path="footprints" element={<Footprints />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
