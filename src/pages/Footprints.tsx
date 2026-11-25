@@ -8,7 +8,7 @@ export function Footprints() {
   const { t, lang } = useLang()
   return (
     <section className="page footprints">
-      <Seo title={t('footprints.title')} description={t('seo.footprints')} />
+      <Seo title={t('footprints.title')} description={t('seo.footprints')} noindex />
       <h1>{t('footprints.title')}</h1>
       <p className="meta">{t('footprints.stats', { c: footprints.length, n: cityCount })}</p>
       <Chomper />
