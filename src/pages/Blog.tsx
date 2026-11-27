@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Seo } from '../components/Seo'
 import { Chomper } from '../components/Chomper'
@@ -12,6 +13,13 @@ export function Blog() {
   const query = params.get('q') ?? ''
   const tag = params.get('tag') ?? ''
   const shown = filterPosts(sortedPosts, query, tag)
+
+  // 輸入框自己保存文字：中文輸入法組字（注音、拼音）期間不能改網址或重新渲染，否則組字會被打斷
+  const [text, setText] = useState(query)
+  const composing = useRef(false)
+  useEffect(() => {
+    if (!composing.current) setText(query)
+  }, [query])
 
   function update(next: { q?: string; tag?: string }) {
     const merged = { q: query, tag, ...next }
@@ -35,8 +43,18 @@ export function Blog() {
         className="search"
         placeholder={t('blog.search')}
         aria-label={t('blog.searchLabel')}
-        value={query}
-        onChange={(e) => update({ q: e.target.value })}
+        value={text}
+        onChange={(e) => {
+          setText(e.target.value)
+          if (!composing.current) update({ q: e.target.value })
+        }}
+        onCompositionStart={() => {
+          composing.current = true
+        }}
+        onCompositionEnd={(e) => {
+          composing.current = false
+          update({ q: e.currentTarget.value })
+        }}
       />
 
       {allTags.length > 0 && (
