@@ -13,7 +13,7 @@ function sitemap(): Plugin {
   return {
     name: 'sitemap',
     generateBundle() {
-      const urls: { loc: string; lastmod?: string }[] = [{ loc: '/' }, { loc: '/about' }, { loc: '/blog' }]
+      const urls: { loc: string; lastmod?: string }[] = [{ loc: '/' }, { loc: '/about' }, { loc: '/blog' }, { loc: '/footprints' }]
       try {
         for (const f of readdirSync('content/posts')) {
           if (!f.endsWith('.md') || f.endsWith('.en.md')) continue
@@ -109,6 +109,7 @@ function ogPages(): Plugin {
         const emit = (path: string, html: string) => this.emitFile({ type: 'asset', fileName: `${path}/index.html`, source: html })
         emit('about', page(base, { title: `${dict.zh['page.about']} · ${SITE}`, desc: dict.zh['seo.about'], path: '/about', image: home }))
         emit('blog', page(base, { title: `${dict.zh['blog.title']} · ${SITE}`, desc: dict.zh['seo.blog'], path: '/blog', image: home }))
+        emit('footprints', page(base, { title: `${dict.zh['footprints.title']} · ${SITE}`, desc: dict.zh['seo.footprints'], path: '/footprints', image: home }))
         try {
           for (const f of readdirSync('content/posts')) {
             if (!f.endsWith('.md') || f.endsWith('.en.md')) continue

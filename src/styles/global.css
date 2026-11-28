@@ -1518,68 +1518,51 @@ input.write-title { display: block; width: 100%; margin: 1.5rem 0 0; padding: 0;
 /* ---------- 足跡頁 ---------- */
 .fp-grid {
   list-style: none;
-  margin: 2rem 0 0;
+  margin: 0.8rem 0 0;
   padding: 0;
-  columns: 2 14rem;
-  column-gap: 1.25rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  column-gap: 2rem;
 }
-.fp-card {
-  break-inside: avoid;
-  margin: 0 0 1.25rem;
-  padding: 0.9rem 1.1rem;
-  background: var(--surface);
-  /* 像素階梯邊框：四邊各畫一條，四個角留空，看起來就是被切角的像素方塊 */
-  box-shadow:
-    -3px 0 0 0 var(--border),
-    3px 0 0 0 var(--border),
-    0 -3px 0 0 var(--border),
-    0 3px 0 0 var(--border);
-  transition: box-shadow 0.15s steps(2);
+.fp-row {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.8rem 0;
+  /* 像素點狀分隔線 */
+  border-bottom: 2px dotted var(--border);
 }
-.fp-card:hover:not(.fp-next) {
-  box-shadow:
-    -3px 0 0 0 var(--accent),
-    3px 0 0 0 var(--accent),
-    0 -3px 0 0 var(--accent),
-    0 3px 0 0 var(--accent);
+.fp-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.5;
 }
-.fp-country {
+.fp-name {
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+.fp-city-list {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+.fp-text {
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.fp-row.on .fp-text {
+  transform: translateX(6px);
+}
+.fp-row.on .fp-name {
+  color: var(--accent);
+}
+.fp-next {
+  color: var(--muted);
+  border-bottom: 0;
+}
+.fp-next > div {
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  font-weight: 600;
-}
-.fp-flag {
-  font-size: 1.4rem;
-  line-height: 1;
-}
-.fp-cities {
-  list-style: none;
-  margin: 0.45rem 0 0;
-  padding: 0;
-}
-.fp-cities li {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  color: var(--muted);
-  line-height: 1.9;
-}
-/* 城市前面的小方塊：像吃豆人的豆子 */
-.fp-cities li::before {
-  content: '';
-  width: 6px;
-  height: 6px;
-  margin-left: 0.2rem;
-  background: var(--accent);
-  flex: none;
-}
-.fp-next {
-  background: transparent;
-  box-shadow: none;
-  outline: 2px dashed var(--border);
-  outline-offset: 1px;
-  color: var(--muted);
 }
 .fp-cursor {
   width: 0.6rem;
@@ -1596,7 +1579,47 @@ input.write-title { display: block; width: 100%; margin: 1.5rem 0 0; padding: 0;
   .fp-cursor {
     animation: none;
   }
-  .fp-card {
+}
+
+/* 足跡頁：數據、地圖 */
+.fp-hud {
+  display: flex;
+  align-items: baseline;
+  gap: 0.8rem;
+  margin: 1.6rem 0 1.4rem;
+}
+.fp-num {
+  font-family: var(--font-brand);
+  font-size: 3rem;
+  line-height: 1;
+  color: var(--accent);
+}
+.fp-label {
+  font-size: 1.05rem;
+  color: var(--muted);
+}
+.fp-map {
+  line-height: 0;
+}
+.fp-map canvas {
+  display: block;
+  max-width: 100%;
+  touch-action: manipulation;
+}
+.fp-pixflag {
+  width: 32px;
+  height: 24px;
+  image-rendering: pixelated;
+  flex: none;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.fp-row.on .fp-pixflag {
+  transform: translateY(-2px) scale(1.12);
+}
+@media (prefers-reduced-motion: reduce) {
+  .fp-text,
+  .fp-pixflag,
+  .fp-name {
     transition: none;
   }
 }

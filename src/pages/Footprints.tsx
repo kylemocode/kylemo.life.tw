@@ -1,42 +1,57 @@
+import { useState } from 'react'
 import { Seo } from '../components/Seo'
-import { Chomper } from '../components/Chomper'
 import { Reveal } from '../components/Reveal'
-import { cityCount, flag, footprints } from '../data/footprints'
+import { PixelMap } from '../components/PixelMap'
+import { PixelFlag } from '../components/PixelFlag'
+import { footprints } from '../data/footprints'
 import { useLang } from '../i18n'
+
+const WORLD = 195 // 聯合國 193 個會員國 + 梵蒂岡、巴勒斯坦兩個觀察員國
 
 export function Footprints() {
   const { t, lang } = useLang()
+  const [active, setActive] = useState<string | null>(null)
+
   return (
     <section className="page footprints">
-      <Seo title={t('footprints.title')} description={t('seo.footprints')} noindex />
+      <Seo title={t('footprints.title')} description={t('seo.footprints')} />
       <h1>{t('footprints.title')}</h1>
-      <p className="meta">{t('footprints.stats', { c: footprints.length, n: cityCount })}</p>
-      <Chomper />
 
+      <p className="fp-hud">
+        {t('footprints.hud', { total: WORLD, n: '{n}' })
+          .split('{n}')
+          .flatMap((part, i) => [
+            i > 0 && (
+              <span key={`n${i}`} className="fp-num">
+                {footprints.length}
+              </span>
+            ),
+            <span key={i} className="fp-label">
+              {part.trim()}
+            </span>,
+          ])}
+      </p>
+
+      <PixelMap active={active} onActive={setActive} />
       <ul className="fp-grid">
         {footprints.map((f) => (
-          <li key={f.code} className="fp-card">
-            <div className="fp-country">
-              <span className="fp-flag" aria-hidden="true">
-                {flag(f.code)}
-              </span>
-              <span>{f[lang]}</span>
+          <li
+            key={f.code}
+            className={`fp-row${active === f.code ? ' on' : ''}`}
+            onPointerEnter={() => setActive(f.code)}
+            onPointerLeave={() => setActive(null)}
+          >
+            <PixelFlag code={f.code} />
+            <div className="fp-text">
+              <span className="fp-name">{f[lang]}</span>
+              {f.cities && <span className="fp-city-list">{f.cities.map((c) => (lang === 'zh' ? c[0] : c[1])).join(lang === 'zh' ? '、' : ', ')}</span>}
             </div>
-            {f.cities && (
-              <ul className="fp-cities">
-                {f.cities.map((c) => (
-                  <li key={c[0]}>{lang === 'zh' ? c[0] : c[1]}</li>
-                ))}
-              </ul>
-            )}
           </li>
         ))}
-        <li className="fp-card fp-next">
+        <li className="fp-row fp-next">
           <Reveal>
-            <div className="fp-country">
-              <span>{t('footprints.next')}</span>
-              <span className="fp-cursor" aria-hidden="true" />
-            </div>
+            <span className="fp-name">{t('footprints.next')}</span>
+            <span className="fp-cursor" aria-hidden="true" />
           </Reveal>
         </li>
       </ul>
